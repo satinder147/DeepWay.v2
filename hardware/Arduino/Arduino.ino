@@ -38,5 +38,5 @@ void right()
   y.write(152);
   delay(500);
   y.write(102);
-  delay(500);
+  delay(500      );
 }
