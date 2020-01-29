@@ -2,7 +2,10 @@
 Autonomous navigation for blind people
 # Steps
 1. Collecting Training data.
-2. Labelling training data.
+2. Labelling training data (used LabelBox for it).
+3. Downlading data from the exported .csv file from Labelbox
+4. Training a segmentation model on the data
+5. 
 
 # Things to acheieve:
 1. Collecting data

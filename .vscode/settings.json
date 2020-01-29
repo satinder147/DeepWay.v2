@@ -4,5 +4,5 @@
     },
     "python.pythonPath": "/home/satinder/anaconda3/envs/deepWay/bin/python",
     "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true
+    "python.linting.enabled": false
 }

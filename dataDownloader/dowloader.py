@@ -17,7 +17,7 @@ args=parser.parse_args()
 
 data=pd.read_csv(args.csv)
 print(len(data))
-for i in tqdm(range(410,len(data))):
+for i in tqdm(range(len(data))):
     r=data.iloc[i,2]
     urllib.request.urlretrieve(r,args.path1+"/"+str(i)+'.jpg')
     p=data.iloc[i,17]
