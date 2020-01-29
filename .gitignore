@@ -1,3 +1,5 @@
 /dataSet
 /hardware/__pycache__
 /voiceCommands/clips
+.vscode
+*.mp4

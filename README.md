@@ -39,4 +39,6 @@ Autonomous navigation for blind people
 3. [Pytorch Community](https://discuss.pytorch.org/)
 4. [AWS](https://aws.amazon.com/)
 5. [U-Net](https://arxiv.org/pdf/1505.04597.pdf)
+6. [U-Net implementation(usuyama)](https://github.com/usuyama/pytorch-unet)
+7. [U-Net implementation(Heet Sankesara)](https://towardsdatascience.com/u-net-b229b32b4a71)
 
