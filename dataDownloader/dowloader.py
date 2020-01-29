@@ -1,0 +1,31 @@
+import pandas as pd
+import os
+from tqdm import tqdm
+import json
+import argparse
+import urllib.request
+import math
+
+
+parser=argparse.ArgumentParser()
+parser.add_argument("-p1","--path1",help="provide image folder name")
+parser.add_argument("-p2","--path2",help="provide mask folder name")
+parser.add_argument("-c","--csv",help="path to csv file")
+args=parser.parse_args()
+#os.mkdir(args.path1)
+#os.mkdir(args.path2)
+
+data=pd.read_csv(args.csv)
+print(len(data))
+for i in tqdm(range(410,len(data))):
+    r=data.iloc[i,2]
+    urllib.request.urlretrieve(r,args.path1+"/"+str(i)+'.jpg')
+    p=data.iloc[i,17]
+    if(isinstance(p,str)):
+        r=json.loads(p)
+        urllib.request.urlretrieve(r["road"],args.path2+"/"+str(i)+'.png')
+    else:
+        os.remove("img/"+str(i)+".jpg")
+print("completed")
+
+
