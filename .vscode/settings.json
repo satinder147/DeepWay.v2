@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "cmath": "cpp"
-    },
-    "python.pythonPath": "/home/satinder/anaconda3/envs/deepWay/bin/python",
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true
-}
