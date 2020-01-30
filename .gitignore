@@ -2,6 +2,6 @@
 /voiceCommands/clips
 .vscode/  #removing git rm --cached .vscode/. Because the file was being tracked
 *.mp4
-*.py[cod]
-__pycache__/
-
+**/*.pyc
+**/__pycache__
+/checkpoints

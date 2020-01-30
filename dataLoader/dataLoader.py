@@ -11,7 +11,9 @@ import torchvision.transforms as transforms
 
 
 class load(Dataset):
-    def __init__(self):
+    def __init__(self,**kwargs):
+        self.width=kwargs["width"]
+        self.height=kwargs["height"]
         self.samples=[]
         self.path1="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/segmentation1/img/"
         self.path2="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/segmentation1/mask/"
@@ -27,7 +29,8 @@ class load(Dataset):
         self.transforms_img=transforms.Compose([transforms.ToTensor(),
                                                 transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
 
-        self.transforms_mask=transforms.Compose([transforms.ToTensor(),
+        self.transforms_mask=transforms.Compose([transforms.Grayscale(num_output_channels=1),
+                                                transforms.ToTensor(),
                                                 transforms.Normalize((0.5,),(0.5,))])
 
     def __len__(self):
@@ -38,8 +41,8 @@ class load(Dataset):
         img=cv2.imread(self.path1+i,1)
         img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         mask=cv2.imread(self.path2+j,1)
-        img=cv2.resize(img,(280,280))
-        mask=cv2.resize(mask,(280,280))
+        img=cv2.resize(img,(self.height,self.width))
+        mask=cv2.resize(mask,(self.height,self.width))
         seed=np.random.randint(2147483647)
         img=Image.fromarray(img)
         mask=Image.fromarray(mask)
@@ -64,11 +67,8 @@ class load(Dataset):
         mask=self.flip(mask)
         random.seed(seed)
         mask=self.transforms_mask(mask)
-        print(mask.shape)
-        print(img.shape)
-        self.plot(mask)
-        self.plot(img)
-        #print(mask.shape)
+
+        return (img,mask)
     
     def plot(self,img):
         img=np.transpose(img.numpy(),(1,2,0))
