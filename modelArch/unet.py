@@ -3,25 +3,27 @@ import torch.nn as nn
 
 class Unet(nn.Module):
     '''U-Net Architecture'''
-
+#64-16
+#128-32
+#256-64
     def __init__(self,inp,out):
         super(Unet,self).__init__()
-        self.c1=self.contracting_block(inp,128)
-        self.c2=self.contracting_block(128,256)
-        self.c3=self.contracting_block(256,512)
+        self.c1=self.contracting_block(inp,16)
+        self.c2=self.contracting_block(16,32)
+        self.c3=self.contracting_block(32,64)
         self.maxpool=nn.MaxPool2d(2)
         self.upsample=nn.Upsample(scale_factor=2,mode="bilinear",align_corners=True)
-        self.c4=self.contracting_block(256+512,256)
-        self.c5=self.contracting_block(128+256,128)
-        self.c6=nn.Conv2d(128,out,1)
+        self.c4=self.contracting_block(32+64,32)
+        self.c5=self.contracting_block(16+32,16)
+        self.c6=nn.Conv2d(16,out,1)
 
     def contracting_block(self,inp,out,k=3):
         block =nn.Sequential(
             nn.Conv2d(inp,out,k,padding=1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.BatchNorm2d(out),
             nn.Conv2d(out,out,k,padding=1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.BatchNorm2d(out)
         )
         return block

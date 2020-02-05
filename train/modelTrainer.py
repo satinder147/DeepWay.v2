@@ -15,7 +15,7 @@ device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using ",device)
 net.to(device)
 #summary(net,input_size=(3,40,40))
-data=load(width=60,height=60)
+data=load(width=256,height=256)
 dataLoader=DataLoader(data,batch_size=4,shuffle=True,num_workers=4)
 
 def trainingLoop(*args,**kwargs):

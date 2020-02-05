@@ -22,7 +22,7 @@ class load(Dataset):
         for i in tqdm(img_folder):
             num=i.split(".")[0]
             self.samples.append((i,num+".png"))
-        self.color=transforms.ColorJitter(brightness = 2,contrast=1,saturation=1,hue=(-0.5,0.5))
+        #self.color=transforms.ColorJitter(brightness = 2,contrast=1,saturation=1,hue=(-0.5,0.5))
         #self.translate=transforms.RandomAffine(translate=(0.1,0.1))
         self.angle=transforms.RandomAffine(degrees=(60))
         self.flip=transforms.RandomHorizontalFlip(p=0.5)
@@ -49,7 +49,7 @@ class load(Dataset):
 
 
         random.seed(seed)
-        img=self.color(img)
+        #img=self.color(img)
         random.seed(seed)
         #img=self.translate(img)
         random.seed(seed)
