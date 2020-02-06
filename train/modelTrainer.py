@@ -10,13 +10,13 @@ from torchsummary import summary
 from dataLoader.dataLoader import load
 from torch.utils.data import DataLoader
 
-net=Unet(3,1)
+net=Unet(3,3)
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using ",device)
 net.to(device)
 #summary(net,input_size=(3,40,40))
 data=load(width=256,height=256)
-dataLoader=DataLoader(data,batch_size=4,shuffle=True,num_workers=4)
+dataLoader=DataLoader(data,batch_size=8,shuffle=True,num_workers=4)
 
 def trainingLoop(*args,**kwargs):
     """
@@ -46,15 +46,15 @@ def trainingLoop(*args,**kwargs):
             opt.step()
             running_loss += torch.exp(loss).item()
             if(i%20==19):
-                print("[%3d] loss:%.3f"%(epoch_num,running_loss/20))
+                print("[%3d] loss:%.10f"%(epoch_num,running_loss/20))
                 running_loss=0.0
 
             #print(img.shape,mask.shape)
             #break
         #l=criterion(outputs,masks)
-        torch.save(net.state_dict(),"checkpoints/"+str(epoch_num)+".pth")
+        torch.save(net.state_dict(),"check/"+str(epoch_num)+".pth")
         
     
     
 
-trainingLoop(epochs=5,lr=1e-4)
+trainingLoop(epochs=50,lr=1e-3)
