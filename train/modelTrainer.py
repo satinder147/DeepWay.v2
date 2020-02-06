@@ -10,13 +10,14 @@ from torchsummary import summary
 from dataLoader.dataLoader import load
 from torch.utils.data import DataLoader
 
-net=Unet(3,3)
-device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("using ",device)
-net.to(device)
-#summary(net,input_size=(3,40,40))
-data=load(width=256,height=256)
-dataLoader=DataLoader(data,batch_size=8,shuffle=True,num_workers=4)
+def init():
+    net=Unet(3,3)
+    device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print("using ",device)
+    net.to(device)
+    #summary(net,input_size=(3,40,40))
+    data=load(width=256,height=256)
+    dataLoader=DataLoader(data,batch_size=8,shuffle=True,num_workers=4)
 
 def trainingLoop(*args,**kwargs):
     """
@@ -55,6 +56,6 @@ def trainingLoop(*args,**kwargs):
         torch.save(net.state_dict(),"check/"+str(epoch_num)+".pth")
         
     
-    
-
-trainingLoop(epochs=50,lr=1e-3)
+if __name__=="__main__":
+    init()
+    trainingLoop(epochs=50,lr=1e-3)

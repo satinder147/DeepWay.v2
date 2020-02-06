@@ -13,8 +13,8 @@ print("using ",device)
 net.to(device)
 summary(net,input_size=(3,256,256))
 trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
-net.load_state_dict(torch.load("check/8.pth"))
-cap=cv2.VideoCapture("dataSet/videos/second.mp4")
+net.load_state_dict(torch.load("checkpoints/5.pth"))
+cap=cv2.VideoCapture("dataSet/videos/two.mp4")
 
 while True:
     with torch.no_grad():

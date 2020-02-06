@@ -21,6 +21,9 @@ class Unet(nn.Module):
             nn.BatchNorm2d(out),
             nn.Conv2d(out,out,k,padding=1),
             nn.ReLU(inplace=True),
+            nn.BatchNorm2d(out),
+            nn.Conv2d(out,out,k,padding=1),
+            nn.ReLU(inplace=True),
             nn.BatchNorm2d(out)
         )
         return block

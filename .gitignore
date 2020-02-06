@@ -1,6 +1,7 @@
 /dataSet
 /voiceCommands/clips
-.vscode/  #removing git rm --cached .vscode/. Because the file was being tracked
+.vscode/  
+#removing git rm --cached .vscode/. Because the file was being tracked
 *.mp4
 **/*.pyc
 **/__pycache__
