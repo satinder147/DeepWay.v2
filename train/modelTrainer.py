@@ -10,14 +10,21 @@ from torchsummary import summary
 from dataLoader.dataLoader import load
 from torch.utils.data import DataLoader
 
-def init():
-    net=Unet(3,3)
-    device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("using ",device)
-    net.to(device)
-    #summary(net,input_size=(3,40,40))
-    data=load(width=256,height=256)
-    dataLoader=DataLoader(data,batch_size=8,shuffle=True,num_workers=4)
+def weights_init(m):
+    if isinstance(m,nn.Conv2d):
+        torch.nn.init.xavier_uniform_(m.weight)
+        torch.nn.init.zeros_(m.bias)
+
+
+net=Unet(3,1)
+net.load_state_dict(torch.load("check/24.pth"))
+#net.apply(weights_init)
+device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("using ",device)
+net.to(device)
+#summary(net,input_size=(3,40,40))
+data=load(width=256,height=256)
+dataLoader=DataLoader(data,batch_size=4,shuffle=True,num_workers=4)
 
 def trainingLoop(*args,**kwargs):
     """
@@ -35,8 +42,14 @@ def trainingLoop(*args,**kwargs):
         running_loss=0.0
         for i,samples in enumerate(dataLoader):
             imgs,masks=samples[0],samples[1]
+
+            #masks=masks.long()
+            #print(masks.dtype)
+            #masks=masks.squeeze(1)
+            #print(masks.shape)
             #imgs,masks=imgs.type(torch.FloatTensor),masks.type(torch.long)
             imgs,masks=imgs.to(device),masks.to(device)
+            
             opt.zero_grad()
             outputs=net(imgs)
             #masks=masks.type(torch.float64)
@@ -46,6 +59,7 @@ def trainingLoop(*args,**kwargs):
             loss.backward()
             opt.step()
             running_loss += torch.exp(loss).item()
+            #running_loss += loss.item()
             if(i%20==19):
                 print("[%3d] loss:%.10f"%(epoch_num,running_loss/20))
                 running_loss=0.0
@@ -57,5 +71,4 @@ def trainingLoop(*args,**kwargs):
         
     
 if __name__=="__main__":
-    init()
-    trainingLoop(epochs=50,lr=1e-3)
+    trainingLoop(epochs=50,lr=1e-4)

@@ -26,12 +26,12 @@ class load(Dataset):
         #self.translate=transforms.RandomAffine(translate=(0.1,0.1))
         self.angle=transforms.RandomAffine(degrees=(60))
         self.flip=transforms.RandomHorizontalFlip(p=0.5)
-        self.transforms_img=transforms.Compose([transforms.ToTensor()])
-                                                #transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
+        self.transforms_img=transforms.Compose([transforms.ToTensor(),
+                                                transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
 
-        self.transforms_mask=transforms.Compose([#transforms.Grayscale(num_output_channels=1),
-                                                transforms.ToTensor()])
-                                                #transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
+        self.transforms_mask=transforms.Compose([transforms.Grayscale(num_output_channels=1),
+                                                transforms.ToTensor(),
+                                                transforms.Normalize((0.5,),(0.5,))])
 
     def __len__(self):
         return len(self.samples)
@@ -42,7 +42,7 @@ class load(Dataset):
         img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         #img=cv2.blur(img,(3,3))
         mask=cv2.imread(self.path2+j,1)
-        mask=cv2.cvtColor(mask,cv2.COLOR_BGR2RGB)
+        mask=cv2.cvtColor(mask,cv2.COLOR_BGR2GRAY)
         img=cv2.resize(img,(self.height,self.width))
         mask=cv2.resize(mask,(self.height,self.width))
         #print(mask.shape)

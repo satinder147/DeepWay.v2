@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 class Unet(nn.Module):
     '''U-Net Architecture'''
     def __init__(self,inp,out):
@@ -13,6 +13,7 @@ class Unet(nn.Module):
         self.c4=self.contracting_block(16+32,16)
         self.c5=self.contracting_block(8+16,8)
         self.c6=nn.Conv2d(8,out,1)
+        
 
     def contracting_block(self,inp,out,k=3):
         block =nn.Sequential(
@@ -42,6 +43,7 @@ class Unet(nn.Module):
         x=torch.cat([conv1,x],axis=1)
         x=self.c5(x)
         x=self.c6(x)
+        #x=F.sigmoid(x)
         return x
 
 

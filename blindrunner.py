@@ -7,14 +7,15 @@ import cv2
 from PIL import Image
 import numpy as np
 from torchsummary import summary
-net=Unet(3,3)
+net=Unet(3,1)
+net.load_state_dict(torch.load("check/22.pth"))
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using ",device)
 net.to(device)
 summary(net,input_size=(3,256,256))
 trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
-net.load_state_dict(torch.load("checkpoints/5.pth"))
-cap=cv2.VideoCapture("dataSet/videos/two.mp4")
+
+cap=cv2.VideoCapture("dataSet/videos/one.mp4")
 
 while True:
     with torch.no_grad():
@@ -26,10 +27,9 @@ while True:
         img=img.to(device)
         mask=net(img)
         #print(mask.shape)
-
         mp=mask[0].cpu().detach().numpy()
         mp=np.transpose(mp,(1,2,0))
-        #mp=mp*0.5+0.5
+        mp=mp*0.5+0.5
         #mask=mp*0.5+0.5
         #print(mask.shape)
         cv2.imshow("mask",mp)
