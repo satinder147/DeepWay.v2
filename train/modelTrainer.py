@@ -1,6 +1,8 @@
 import os
+import cv2
 import sys
 import torch
+import numpy as np
 import argparse
 sys.path.append('')
 import torch.nn as nn
@@ -9,7 +11,10 @@ from modelArch.unet import Unet
 from torchsummary import summary
 from dataLoader.dataLoader import load
 from torch.utils.data import DataLoader
-
+import torchvision
+from torch.utils.tensorboard import SummaryWriter
+from PIL import Image
+writer=SummaryWriter('runs2/trial1')
 def weights_init(m):
     if isinstance(m,nn.Conv2d):
         torch.nn.init.xavier_uniform_(m.weight)
@@ -17,14 +22,30 @@ def weights_init(m):
 
 
 net=Unet(3,1)
-net.load_state_dict(torch.load("check/24.pth"))
+#net.load_state_dict(torch.load("check/24.pth"))
+
 #net.apply(weights_init)
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using ",device)
-net.to(device)
+
 #summary(net,input_size=(3,40,40))
 data=load(width=256,height=256)
 dataLoader=DataLoader(data,batch_size=4,shuffle=True,num_workers=4)
+x=iter(dataLoader)
+
+img,mask=x.next()
+grid=torchvision.utils.make_grid(img)
+writer.add_image('images',grid,0)
+writer.add_graph(net,img)
+writer.close()
+net.to(device)
+#print(img.cpu().numpy().shape)
+'''
+cv2.imshow("img",np.transpose(img[0].cpu().numpy(),(1,2,0)))
+cv2.waitKey(0)
+writer.add_graph(net,np.ones((256,256,3)))
+writer.close()
+'''
 
 def trainingLoop(*args,**kwargs):
     """
@@ -62,7 +83,10 @@ def trainingLoop(*args,**kwargs):
             #running_loss += loss.item()
             if(i%20==19):
                 print("[%3d] loss:%.10f"%(epoch_num,running_loss/20))
+                writer.add_scalar("lr2",running_loss/20,epoch_num*len(dataLoader)+i)
+                writer.close()
                 running_loss=0.0
+                
 
             #print(img.shape,mask.shape)
             #break
@@ -71,4 +95,5 @@ def trainingLoop(*args,**kwargs):
         
     
 if __name__=="__main__":
+    #pass
     trainingLoop(epochs=50,lr=1e-4)
