@@ -48,5 +48,5 @@ class Unet(nn.Module):
 
 if __name__=="__main__":
     x=torch.ones(1,3,256,256)
-    net=unet(3,3)
+    net=unet(3,1)
     print(net(x).shape)

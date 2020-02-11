@@ -20,10 +20,10 @@ print(len(data))
 for i in tqdm(range(len(data))):
     r=data.iloc[i,2]
     urllib.request.urlretrieve(r,args.path1+"/"+str(i)+'.jpg')
-    p=data.iloc[i,17]
+    p=data.iloc[i,3]
     if(isinstance(p,str)):
-        r=json.loads(p)
-        urllib.request.urlretrieve(r["road"],args.path2+"/"+str(i)+'.png')
+        r=json.loads(p)["objects"][0]["instanceURI"]
+        urllib.request.urlretrieve(r,args.path2+"/"+str(i)+'.png')
     else:
         os.remove("img/"+str(i)+".jpg")
 print("completed")
