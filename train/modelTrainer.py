@@ -139,8 +139,8 @@ def trainingLoop(*args,**kwargs):
         
     
 if __name__=="__main__":
-    init(train_size=400,test_size=26,batch_size=int(args.batch_size))
-    trainingLoop(epochs=int(args.epochs),lr=int(args.lr))
+    init(train_size=647,test_size=51,batch_size=int(args.batch_size))
+    trainingLoop(epochs=int(args.epochs),lr=1e-4)
 
 
     

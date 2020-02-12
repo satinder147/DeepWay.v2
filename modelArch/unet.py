@@ -17,12 +17,15 @@ class Unet(nn.Module):
     def contracting_block(self,inp,out,k=3):
         block =nn.Sequential(
             nn.Conv2d(inp,out,k,padding=1),
+            nn.Dropout(p=0.5,inplace=True),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(out),
             nn.Conv2d(out,out,k,padding=1),
+            nn.Dropout(p=0.5,inplace=True),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(out),
             nn.Conv2d(out,out,k,padding=1),
+            nn.Dropout(p=0.5,inplace=True),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(out)
         )

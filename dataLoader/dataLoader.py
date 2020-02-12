@@ -15,8 +15,8 @@ class load(Dataset):
         self.width=kwargs["width"]
         self.height=kwargs["height"]
         self.samples=[]
-        self.path1="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/segmentation1/img/"
-        self.path2="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/segmentation1/mask/"
+        self.path1="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/img/"
+        self.path2="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/mask/"
         img_folder=os.listdir(self.path1)
         
         for i in tqdm(img_folder):

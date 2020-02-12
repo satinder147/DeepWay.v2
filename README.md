@@ -19,10 +19,29 @@ Autonomous navigation for blind people
 9. Navigation using GPS module
 
 
+
+# Steps:
+1. Collection of dataSet.
+    * I made videos of roads and converted those videos to jpg's. This way I collected a dataSet of approximately 10000 images.I collected images from left, right and center view. e.g:<br>
+    <img src="readMe/left.jpg" height=150 style="padding:20px;"/>
+    <img src="readMe/center.jpg" height=150 style="padding:20px;"/>
+    <img src="readMe/right.jpg" height=150 style="padding:20px;"/>
+    * For Unet, I had to create binary masks for the input data, I used LabelBox for generating binary masks. (This took a looooooooot of time). A sample is as follows-><br>
+    <img src="readMe/12.jpg" height=200 style="padding:20px;"/>
+    <img src="readMe/12.png" height=200 style="padding:20px;"/>
+2. Model training
+    * I trained a U-Net based model for road segmentation. 
+    * The loss(pink:traning, green:validation) vs iterations curve is as follows.
+    <img src="readMe/loss.svg" style="height=400px;padding:20px;margin-left:-100px;"/>
+    
+    
+
+
+
 # This is the project
 
 # People to Thank
-1. Army Institute of Technology
+1. Army Institute of Technology (My college)
     * 3D printer
     * Ever Lasting Support
 2. 3D printing
