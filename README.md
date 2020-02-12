@@ -19,16 +19,32 @@ Autonomous navigation for blind people
 9. Navigation using GPS module
 
 
+# Hardware requirements
+1. Nvidia Jetson Nano.
+2. Arduino nano.
+3. 2 servo motors.
+4. USB audio adapter(as jetson nano does not have a audio jack)
+5. Ethernet cable
+6. Power adapter for nvidia jetson nano
+7. 3D printer.(Not very necessary)
+8. A latop(Nvidia GPU preferred) or any cloud service provider.
+
+# Software requirements
+1. Ubuntu machine(16.04 preferred)
+2. Install anaconda.
+3. 
+
+
 
 # Steps:
-1. Collection of dataSet.
+1. Collecting dataSet and Generating image masks.
     * I made videos of roads and converted those videos to jpg's. This way I collected a dataSet of approximately 10000 images.I collected images from left, right and center view. e.g:<br>
     <img src="readMe/left.jpg" height=150 style="padding:20px;"/>
     <img src="readMe/center.jpg" height=150 style="padding:20px;"/>
-    <img src="readMe/right.jpg" height=150 style="padding:20px;"/>
+    <img src="readMe/right.jpg" height=150 style="padding:20px;"/><br>
     * For Unet, I had to create binary masks for the input data, I used LabelBox for generating binary masks. (This took a looooooooot of time). A sample is as follows-><br>
     <img src="readMe/12.jpg" height=200 style="padding:20px;"/>
-    <img src="readMe/12.png" height=200 style="padding:20px;"/>
+    <img src="readMe/12_mask.jpg" height=200 style="padding:20px;"/><br>
 2. Model training
     * I trained a U-Net based model for road segmentation. 
     * The loss(pink:traning, green:validation) vs iterations curve is as follows.
