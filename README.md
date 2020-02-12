@@ -1,4 +1,4 @@
-
+# DEEPWAY
 Autonomous navigation for blind people
 # Steps
 1. Collecting Training data.
@@ -26,14 +26,31 @@ Autonomous navigation for blind people
 4. USB audio adapter(as jetson nano does not have a audio jack)
 5. Ethernet cable
 6. Power adapter for nvidia jetson nano
-7. 3D printer.(Not very necessary)
+7. 3D printer.(Not necessary)
 8. A latop(Nvidia GPU preferred) or any cloud service provider.
 
-# Software requirements
-1. Ubuntu machine(16.04 preferred)
+# Software requirements(If running on Laptop)
+1. Ubuntu machine(16.04 preferred).
 2. Install anaconda.
-3. Install the required dependencies  
+3. Install the required dependencies. Some libraries like pytorch, opencv would require a little extra attention.
 ```conda env create -f deepWay.yml```
+4. 
+
+# Software Requirements(Jetson nano)
+1. Follow [these](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) instructions for starting up with Jetson nano.
+2. For connecting headless with jetson nano(using ethernet cable). <br>
+```
+ifconfig
+Check inet addresss
+nmap -sn inet_address/24 --> will return live ip address.
+ssh machine_name@ip
+Enter password
+Now you can connect switch on desktop sharing
+Now connect to jetson using Reminna.
+
+```
+3. Now install all the required dependicies. 
+
 
 
 ### 1. Collecting dataSet and Generating image masks.
@@ -50,6 +67,14 @@ For Unet, I had to create binary masks for the input data, I used LabelBox for g
 I trained a U-Net based model for road segmentation on Azure.
 The loss(pink:traning, green:validation) vs iterations curve is as follows.<br>
 <img src="readMe/loss.svg" height=400px/>
+<br>
+### 3. 3D modelling and printing
+My friend Sangam Kumar Padhi helped me with CAD model. You can look at it [here](https://github.com/satinder147/DeepWay.v2/blob/master/3D%20model/model.STL)
+
+### 4. Electronics on the spectacles
+
+
+
 
 # This is the project
 
