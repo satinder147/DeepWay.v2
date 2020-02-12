@@ -2,6 +2,10 @@
 Autonomous navigation for blind people.
 This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). You can have a look at this [video](https://www.youtube.com/watch?v=qkmU8mN0LwE).
 
+# A question you may have in mind
+#### If I already had a repository, why make another ?
+> When I made the previous repository, I didn't use github properly, this is the biggest reason for me shifting to another repository.
+
 # Hardware requirements
 1. Nvidia Jetson Nano.
 2. Arduino nano.
@@ -80,11 +84,11 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 
 
 # People to Thank
-1. Army Institute of Technology (My college).
-2. Prof. Avinash Patil,Sangam Kumar Padhi, Sahil and Priyanshu for 3D modelling and printing.
-3. Shivam sharma and Arpit for data labelling.
-4. Nvidia for providing a free jetson kit.
-5. LabelBox: For providing me with the free license of their **Amazing Prodcut**.
+1. **Army Institute of Technology (My college).**
+2. **Prof. Avinash Patil,Sangam Kumar Padhi, Sahil and Priyanshu for 3D modelling and printing.**
+3. **Shivam sharma and Arpit for data labelling.**
+4. **Nvidia for providing a free jetson kit.**
+5. **LabelBox: For providing me with the free license of their **Amazing Prodcut**.**
 
 # References
 1. [Pytorch](https://pytorch.org/)
@@ -95,3 +99,13 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 6. [U-Net implementation(usuyama)](https://github.com/usuyama/pytorch-unet)
 7. [U-Net implementation(Heet Sankesara)](https://towardsdatascience.com/u-net-b229b32b4a71)
 
+# Citations
+
+> Labelbox, "Labelbox," Online, 2019. [Online]. Available: https://labelbox.com
+
+# Liked it
+Tell me if you liked it by giving a star. Also check out my other repositories, I always make cool stuff. I even have a youtube channel "reactor science" where I post all my work.
+# Read about v1 at:
+1. [Geospatial Magazine](https://www.geospatialworld.net/blogs/now-visually-impaired-can-navigate-easily-with-deepway/)
+2. [Hackster](https://blog.hackster.io/navigation-glasses-gently-poke-you-in-the-right-direction-21acc16c8b14)
+3. [Anyline](https://anyline.com/news/3-inspiring-ai-projects-we-love/)
