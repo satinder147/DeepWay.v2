@@ -1,6 +1,7 @@
 # DEEPWAY V2
 Autonomous navigation for blind people.
 This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). You can have a look at this [video](https://www.youtube.com/watch?v=qkmU8mN0LwE).
+<img src="readMe/cover.png" height=500  hspace=20px vspace=200px/>
 
 # A question you may have in mind
 #### If I already had a repository, why make another ?
@@ -20,7 +21,7 @@ This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). 
 1. Ubuntu machine(16.04 preferred).
 2. Install anaconda.
 3. Install the required dependencies. Some libraries like pytorch, opencv would require a little extra attention.<br>
-```conda env create -f deepWay.yml```
+> conda env create -f deepWay.yml
 4. You can not clone the repository.
 5. Change the COM number in the arduno.py file according to your system.
 6. Connect the Ardunio nano and USB audio adapter to your PC. 
@@ -53,6 +54,8 @@ I made videos of roads and converted those videos to jpg's. This way I collected
 For Unet, I had to create binary masks for the input data, I used LabelBox for generating binary masks. (This took a looooooooot of time). A sample is as follows-><br> 
 <img src="readMe/12.jpg" height=170 hspace=20px vspace=20px/>
 <img src="readMe/12_mask.jpg" height=170 hspace=20px vspace=20px/><br>  
+
+**For downloading the labelled data from Labelbox, I have made a small utility named "downloader.py"**
    
 ### 2. Model training
 I trained a U-Net based model for road segmentation on Azure.
@@ -64,9 +67,9 @@ My friend Sangam Kumar Padhi helped me with CAD model. You can look at it [here]
 
 ### 4. Electronics on the spectacles
 The electronics on the spectacles are very easy. It is just two servo motors connected with a ardunio nano. The arduino nano receives signal from the jetson(using pyserial library), and Arduino Nano controls the servo motors. <br>
-<img src="readMe/specs4.jpg" height=400 width=600 align="center" hspace=140px/>
-<img src="readMe/specs2.jpg" height=400 width=600 align="center"  hspace=140px/>
-<img src="readMe/specs3.jpg" height=400 width=600 align="center"  hspace=140px/>
+<img src="readMe/specs4.jpg" height=400 width=600 align="center" hspace=125px/>
+<img src="readMe/specs2.jpg" height=400 width=600 align="center"  hspace=125px/>
+<img src="readMe/specs3.jpg" height=400 width=600 align="center"  hspace=125px/>
 
 # TODO
 - [x] Collect training data.
