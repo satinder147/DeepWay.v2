@@ -16,6 +16,7 @@ class Cnn(nn.Module):
     def forward(self,x):
         x=self.maxpool(F.relu(self.conv1(x)))
         x=self.maxpool(F.relu(self.conv2(x)))
+        #print(x.shape)
         x=F.relu(self.conv3(x))
         x=x.view(-1,8192)
         #print(x.shape)
