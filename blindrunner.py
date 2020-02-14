@@ -22,7 +22,7 @@ from modelArch.unet import Unet
 from torch2trt import TRTModule
 from hardware.controllArduino import Arduino
 #net=Unet(3,1)
-
+import threading
 
 
 cnn=Cnn()
@@ -35,7 +35,12 @@ print("using ",device)
 trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
 cap=cv2.VideoCapture("dataSet/videos/first.mp4")
 dic={0:"left",1:"center",2:"right"}
-
+def controll(x):
+    if(x==0):
+        ard.left()
+    elif(x==1):
+        ard.right()
+    time.sleep(2)
 
 while True:
     with torch.no_grad():
@@ -48,11 +53,14 @@ while True:
         img=img.to(device)
         label=cnn(img)
         lane=torch.argmax(label[0].cpu().detach()).numpy()
+        lane=dic[lane.item()]
         if(lane=="right" or lane=="center"):
-            ard.left()
+            thread=threading.Thread(target=controll,args=(0,))
+            thread.start()
+            #ard.left()
         end=time.time()
         fps=str(int(1/(end-start))_
-        cv2.putText(show,dic[lane.item()]+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
+        cv2.putText(show,+lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
         #cv2.imshow("img",show)
         cv2.waitKey(1)
 
