@@ -20,14 +20,18 @@ import numpy as np
 from modelArch.cnn import Cnn
 from modelArch.unet import Unet
 from torch2trt import TRTModule
+from hardware.controllArduino import Arduino
 #net=Unet(3,1)
 
 
 
-cnn=TRTModule()
+cnn=Cnn()
+ard=Arduino()
 cnn.load_state_dict(torch.load("lane_trt.pth"))
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+cnn=cnn.to(device)
 print("using ",device)
+
 trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
 cap=cv2.VideoCapture("dataSet/videos/first.mp4")
 dic={0:"left",1:"center",2:"right"}
@@ -42,8 +46,10 @@ while True:
         img=cv2.resize(img,(256,256))
         img=trans(img).unsqueeze(0)
         img=img.to(device)
-        label=net(img)
+        label=cnn(img)
         lane=torch.argmax(label[0].cpu().detach()).numpy()
+        if(lane=="right" or lane=="center"):
+            ard.left()
         end=time.time()
         fps=str(int(1/(end-start))_
         cv2.putText(show,dic[lane.item()]+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
