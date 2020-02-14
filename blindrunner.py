@@ -27,13 +27,13 @@ import threading
 
 cnn=Cnn()
 ard=Arduino()
-cnn.load_state_dict(torch.load("lane_trt.pth"))
+cnn.load_state_dict(torch.load("lane.pth"))
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 cnn=cnn.to(device)
 print("using ",device)
 
 trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
-cap=cv2.VideoCapture("dataSet/videos/first.mp4")
+cap=cv2.VideoCapture("fourth.mp4")
 dic={0:"left",1:"center",2:"right"}
 def controll(x):
     if(x==0):
