@@ -47,8 +47,8 @@ while True:
         start=time.time()
         img=cap.read()[1]
         show=img.copy()
-        #show=cv2.resize(show,(640,480))
-        img=cv2.resize(img,(256,256))
+        show=cv2.resize(show,(640,480))
+        img=cv2.resize(img,(64,64))
         img=trans(img).unsqueeze(0)
         img=img.to(device)
         label=cnn(img)
@@ -59,9 +59,9 @@ while True:
             thread.start()
             #ard.left()
         end=time.time()
-        fps=str(int(1/(end-start))_
+        fps=str(int(1/(end-start)))
         cv2.putText(show,+lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
-        #cv2.imshow("img",show)
+        cv2.imshow("img",show)
         cv2.waitKey(1)
 
 
