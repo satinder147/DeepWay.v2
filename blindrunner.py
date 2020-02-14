@@ -10,11 +10,10 @@ Things to complete by tonight
 8) make a swap file
 '''
 
-
+import cv2
 import torch
 import time
 from torchvision import transforms
-import cv2
 from PIL import Image
 import numpy as np
 #from torchsummary import summary
