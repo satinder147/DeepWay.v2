@@ -8,17 +8,15 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
 
-
-
-class load(Dataset):
+class load_cnn(Dataset):
     def __init__(self,**kwargs):
         self.width=kwargs["width"]
         self.height=kwargs["height"]
         self.samples=[]
         self.dic={"left":0,"center":1,"right":2}
-        self.returnSamples("/home/satinder/DeepWay.v2/dataSet/lane_prediction/left",
-                            "/home/satinder/DeepWay.v2/dataSet/lane_prediction/center",
-                            "/home/satinder/DeepWay.v2/dataSet/lane_prediction/right") 
+        self.returnSamples("/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/lane/left",
+                            "/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/lane/center",
+                            "/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/lane/right") 
         self.transforms_img=transforms.Compose([transforms.ToTensor(),
                                                 transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
 

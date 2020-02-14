@@ -1,6 +1,7 @@
 import os
 import cv2
 import sys
+import math
 import torch
 import argparse
 import torchvision
@@ -9,8 +10,10 @@ sys.path.append('')
 import torch.nn as nn
 import torch.optim as optim
 from modelArch.unet import Unet
+from modelArch.cnn import Cnn
 from torchsummary import summary
 from dataLoader.dataLoader import load
+from dataLoader.dataloader import load_cnn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
@@ -18,15 +21,17 @@ parser=argparse.ArgumentParser()
 parser.add_argument("--epochs",default=50)
 parser.add_argument("--batch_size",default=4)
 parser.add_argument("--lr",default=0.0001)
+parser.add_argument("--model",default="cnn",help="unet/cnn")
 args=parser.parse_args()
 
-writer=SummaryWriter('runs2/trial1')
+writer=SummaryWriter('runs/trial1')
 
 net=None
 valid_loader=None
 train_loader=None
 device=None
-
+data=None
+model=None
 
 def weights_init(m):
     if isinstance(m,nn.Conv2d):
@@ -37,18 +42,24 @@ def init(*args,**kwargs):
     """
     Initiates the training process
     keyword parameters:
+    train_percent:[0,1]
     resume:pass checkpoint number from where to resume training
-    train_size 
-    test_size
     batch_size
     """
     #resume=kwargs["resume"]
-    global net,valid_loader,train_loader,device
+    global net,valid_loader,train_loader,device,data
     resume=None
-    train_size=kwargs["train_size"] #400
-    test_size=kwargs["test_size"] #26
+    train_percent=kwargs["train_percent"]
     batch_size=kwargs["batch_size"]
-    net=Unet(3,1)
+    width=kwargs["width"]
+    height=kwargs["width"]
+    #model=kwargs["model"]
+    if(model=="unet"):
+        net=Unet(3,1)
+        data=load(width=width,height=height)
+    elif(model=="cnn"):
+        net=Cnn()
+        data=load_cnn(width=width,height=height)
 
     if(resume is not None):
         net.load_state_dict(torch.load("checkpoints/"+str(name)+".pth"))
@@ -59,7 +70,10 @@ def init(*args,**kwargs):
     device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("using ",device)
     #summary(net,input_size=(3,256,256))
-    data=load(width=256,height=256)
+    
+    size=len(data)
+    train_size=math.floor(train_percent*size)
+    test_size=size-train_size
     print("Data Loaded")
     train,validation=torch.utils.data.random_split(data,[train_size,test_size])
     train_loader=DataLoader(train,batch_size=batch_size,shuffle=True,num_workers=4)
@@ -81,6 +95,7 @@ def validation(**kwargs):
     global net,valid_loader,train_loader,device
     valid_loader=kwargs["valid_loader"]
     criterion=kwargs["criterion"]
+    #model=kwargs["model"]
     p=0
     valid_loss=0.0
     with torch.no_grad():
@@ -88,7 +103,10 @@ def validation(**kwargs):
             imgs,masks=data[0].to(device),data[1].to(device)
             outputs=net(imgs)
             v_loss=criterion(outputs,masks)
-            valid_loss+=torch.exp(v_loss).item()
+            if(model=='unet'):
+                valid_loss+=torch.exp(v_loss).item()      
+            elif(model=='cnn'):
+                valid_loss+=v_loss.item()  
             p+=1
     
     return valid_loss/p
@@ -105,11 +123,13 @@ def trainingLoop(*args,**kwargs):
     global net,valid_loader,train_loader,device
     epochs=kwargs["epochs"]
     lr=kwargs["lr"]
-
     if(os.path.isdir("checkpoints")==False):
         os.mkdir("checkpoints")
-
-    criterion=nn.BCEWithLogitsLoss()
+    criterion=None
+    if model=="unet":
+        criterion=nn.BCEWithLogitsLoss()
+    elif model=="cnn":
+        criterion=nn.CrossEntropyLoss()
     opt=optim.Adam(net.parameters(),lr=lr,weight_decay=1e-8)
     xx=[]
     yy=[]
@@ -124,7 +144,10 @@ def trainingLoop(*args,**kwargs):
             loss=criterion(outputs,masks)
             loss.backward()
             opt.step()
-            running_loss += torch.exp(loss).item()
+            if(model=="unet"):
+                running_loss += torch.exp(loss).item()
+            elif(model=="cnn"):
+                running_loss+=loss.item()
 
             if(i%20==19):
                 valid_loss=validation(valid_loader=valid_loader,criterion=criterion)
@@ -139,7 +162,9 @@ def trainingLoop(*args,**kwargs):
         
     
 if __name__=="__main__":
-    init(train_size=647,test_size=51,batch_size=int(args.batch_size))
+    #global model
+    model=args.model
+    init(batch_size=int(args.batch_size),train_percent=0.95,width=64,height=64)
     trainingLoop(epochs=int(args.epochs),lr=1e-4)
 
 
