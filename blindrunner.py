@@ -33,7 +33,7 @@ cnn=cnn.to(device)
 print("using ",device)
 
 trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
-cap=cv2.VideoCapture("fourth.mp4")
+cap=cv2.VideoCapture("four.mp4")
 dic={0:"left",1:"center",2:"right"}
 def controll(x):
     if(x==0):
@@ -41,10 +41,13 @@ def controll(x):
     elif(x==1):
         ard.right()
     time.sleep(2)
+n=0
+seconds=3*30
 
 while True:
     with torch.no_grad():
         start=time.time()
+        n=n+1
         img=cap.read()[1]
         show=img.copy()
         show=cv2.resize(show,(640,480))
@@ -54,13 +57,14 @@ while True:
         label=cnn(img)
         lane=torch.argmax(label[0].cpu().detach()).numpy()
         lane=dic[lane.item()]
-        if(lane=="right" or lane=="center"):
-            thread=threading.Thread(target=controll,args=(0,))
-            thread.start()
-            #ard.left()
+        if((lane=="right" or lane=="center") and n%(seconds)==0):
+            #thread=threading.Thread(target=controll,args=(0,))
+            #thread.start()
+            ard.left()
+	    
         end=time.time()
         fps=str(int(1/(end-start)))
-        cv2.putText(show,+lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
+        cv2.putText(show,lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
         cv2.imshow("img",show)
         cv2.waitKey(1)
 
