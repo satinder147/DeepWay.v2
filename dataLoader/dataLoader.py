@@ -15,8 +15,8 @@ class load(Dataset):
         self.width=kwargs["width"]
         self.height=kwargs["height"]
         self.samples=[]
-        self.path1="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/img/"
-        self.path2="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/mask/"
+        self.path1="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/Segmentation2/img/"
+        self.path2="/home/satinder/Desktop/deepWay/DeepWay.v2/dataSet/Segmentation2/mask/"
         img_folder=os.listdir(self.path1)
         
         for i in tqdm(img_folder):
@@ -43,6 +43,8 @@ class load(Dataset):
         #img=cv2.blur(img,(3,3))
         mask=cv2.imread(self.path2+j,1)
         mask=cv2.cvtColor(mask,cv2.COLOR_BGR2GRAY)
+        mask=cv2.Canny(mask,100,150)
+        mask=cv2.dilate(mask,None,iterations=5)
         img=cv2.resize(img,(self.height,self.width))
         mask=cv2.resize(mask,(self.height,self.width))
         #print(mask.shape)
@@ -75,7 +77,7 @@ class load(Dataset):
     
     def plot(self,img):
         img=np.transpose(img.numpy(),(1,2,0))
-        #img=img*0.5+0.5
+        img=img*0.5+0.5
         img=cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
         cv2.imshow("ds",img)
         cv2.waitKey(0)

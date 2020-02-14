@@ -21,7 +21,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("--epochs",default=50)
 parser.add_argument("--batch_size",default=4)
 parser.add_argument("--lr",default=0.0001)
-parser.add_argument("--model",default="cnn",help="unet/cnn")
+parser.add_argument("--model",default="unet",help="unet/cnn")
 args=parser.parse_args()
 
 writer=SummaryWriter('runs/trial1')
