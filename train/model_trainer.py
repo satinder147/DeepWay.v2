@@ -12,8 +12,8 @@ import torch.optim as optim
 from modelArch.unet import Unet
 from modelArch.cnn import Cnn
 from torchsummary import summary
-from dataLoader.dataLoader import load
-from dataLoader.dataloader import load_cnn
+from dataLoader.dataLoader_unet import load
+from dataLoader.dataloader_cnn import load_cnn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
@@ -112,7 +112,7 @@ def validation(**kwargs):
     return valid_loss/p
 
 
-def trainingLoop(*args,**kwargs):
+def training_loop(*args,**kwargs):
     """
     Main training Loop
     keyword parameters:
@@ -165,7 +165,7 @@ if __name__=="__main__":
     #global model
     model=args.model
     init(batch_size=int(args.batch_size),train_percent=0.95,width=64,height=64)
-    trainingLoop(epochs=int(args.epochs),lr=1e-4)
+    training_loop(epochs=int(args.epochs),lr=1e-4)
 
 
     

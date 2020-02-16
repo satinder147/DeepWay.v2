@@ -9,7 +9,9 @@ import torchvision.transforms as transforms
 
 
 class load_cnn(Dataset):
+
     def __init__(self,**kwargs):
+
         self.width=kwargs["width"]
         self.height=kwargs["height"]
         self.samples=[]
@@ -22,7 +24,7 @@ class load_cnn(Dataset):
 
 
     def returnSamples(self,*args):
-        print("as")
+
         for path in args:
             img_folder=os.listdir(path)
             for i in tqdm(img_folder):
@@ -31,8 +33,11 @@ class load_cnn(Dataset):
                 label=self.dic[p]
                 self.samples.append((path+"/"+i,label))
         
+
+
     def __len__(self):
         return len(self.samples)
+
 
     def __getitem__(self,idx):
         i,j=self.samples[idx]
@@ -41,9 +46,9 @@ class load_cnn(Dataset):
         img=cv2.resize(img,(self.height,self.width))
         img=Image.fromarray(img) 
         img=self.transforms_img(img)
-      
         return (img,j)
     
+
     def plot(self,img):
         img=np.transpose(img.numpy(),(1,2,0))
         #img=img*0.5+0.5
@@ -54,10 +59,7 @@ class load_cnn(Dataset):
 
 if(__name__=="__main__"):
     obj=load(width=512,height=512)
-    res=obj.__getitem__(5000)
-    
+    res=obj.__getitem__(5000)  
     obj.plot(res[0])
     print(res[1])
-    #obj.plot(res[1])
-    #cv2.imshow("img",res[0].cpu().detach().numpy())
     
