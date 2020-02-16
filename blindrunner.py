@@ -13,76 +13,107 @@ Things to complete by tonight
 import cv2
 import torch
 import time
-from torchvision import transforms
-from PIL import Image
 import numpy as np
-#from torchsummary import summary
+from PIL import Image
 from modelArch.cnn import Cnn
 from modelArch.unet import Unet
-from torch2trt import TRTModule
-from hardware.controllArduino import Arduino
-#net=Unet(3,1)
-import threading
+from torchvision import transforms
+from pedestrian import detector
+from hardware.controll_arduino import Arduino
+
+#from torchsummary import summary uncomment for taking a look at the model architecture
+#from torch2trt import TRTModule  I have been able to run tensorrt model, but don't know why the accuracy is extreamly low.
+
+unet=None
+cnn=None
+device=None
+trans=None
+cap=None
+cap1=None
+dic=None
+n=None
+seconds=None
+person=None
 
 
-cnn=Cnn()
-ard=Arduino()
-cnn.load_state_dict(torch.load("lane.pth"))
-device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-cnn=cnn.to(device)
-print("using ",device)
+def init():
+    global unet,cnn,device,trans,cap,dic,seconds,n,person,cap1
+    unet=Unet(3,1)
+    cnn=Cnn()
+    #ard=Arduino()
+    cnn.load_state_dict(torch.load("trained_models/lane.pth"))
+    print("lane detection model loaded")
+    unet.load_state_dict(torch.load("trained_models/segmentation.pth"))
+    print("road segmentation model loaded")
+    device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    cnn.to(device)
+    unet.to(device)
+    print("using ",device)
+    trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
+    cap=cv2.VideoCapture("dataSet/videos/two.mp4")
+    dic={0:"left",1:"center",2:"right"}
+    n=0
+    seconds=3*30
+    cap1=cv2.VideoCapture(2)
+    person=detector()
 
-trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
-cap=cv2.VideoCapture("four.mp4")
-dic={0:"left",1:"center",2:"right"}
-def controll(x):
-    if(x==0):
-        ard.left()
-    elif(x==1):
-        ard.right()
-    time.sleep(2)
-n=0
-seconds=3*30
+def inference():
+    global unet,cnn,device,trans,cap,dic,seconds,n,detector,cap1
+    while True:
+        with torch.no_grad():
+            start=time.time()
+            n=n+1
+            frame=cap1.read()[1]
+            frame=cv2.resize(frame,(320,240))
+            img=cap.read()[1]
+            lane=img.copy()
+            segmentation=img.copy()
+            show=img.copy()
+            lane=cv2.resize(lane,(64,64))
+            segmentation=cv2.resize(segmentation,(256,256))
 
-while True:
-    with torch.no_grad():
-        start=time.time()
-        n=n+1
-        img=cap.read()[1]
-        show=img.copy()
-        show=cv2.resize(show,(640,480))
-        img=cv2.resize(img,(64,64))
-        img=trans(img).unsqueeze(0)
-        img=img.to(device)
-        label=cnn(img)
-        lane=torch.argmax(label[0].cpu().detach()).numpy()
-        lane=dic[lane.item()]
-        if((lane=="right" or lane=="center") and n%(seconds)==0):
-            #thread=threading.Thread(target=controll,args=(0,))
-            #thread.start()
-            ard.left()
-	    
-        end=time.time()
-        fps=str(int(1/(end-start)))
-        cv2.putText(show,lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
-        cv2.imshow("img",show)
-        cv2.waitKey(1)
+            boxes,labels=person.return_boxes(frame)
+            for i in range(boxes.size(0)):
+                x1,y1,x2,y2=boxes[i]
+                cv2.rectangle(frame,(x1,y1),(x2,y2),(255,0,0),2)
+                label=person.label(labels[i])
+                
+                cv2.rectangle(frame,(x1+2,y1+2),(x1+120,y1+30),(255,255,255),-2)
+                cv2.putText(frame,label,(x1+10,y1+20),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+
+            show=cv2.resize(show,(640,480))
+
+            lane=trans(lane).unsqueeze(0)
+            segmentation=trans(segmentation).unsqueeze(0)
+
+            lane=lane.to(device)
+            segmentation=segmentation.to(device)
+
+            label=cnn(lane)
+            lane=torch.argmax(label[0].cpu().detach()).numpy()
+            lane=dic[lane.item()]
+
+            road=unet(segmentation)
+            road=road[0].cpu().detach().numpy()
+            road=np.transpose(road,(1,2,0))
+            road=road*0.5+0.5
+
+            if((lane=="right" or lane=="center") and n%(seconds)==0):
+                #thread=threading.Thread(target=controll,args=(0,))
+                #thread.start()
+                #ard.left()
+                pass
+
+            
+            end=time.time()
+            fps=str(int(1/(end-start)))
+            cv2.putText(show,lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
+            cv2.imshow("img",show)
+            cv2.imshow("segmented_road",road)
+            cv2.imshow("frame",frame)
+            cv2.waitKey(1)
 
 
-
-        '''
-        #print(mask.shape)
-        mp=mask[0].cpu().detach().numpy()
-        mp=np.transpose(mp,(1,2,0))   #segmentation working
-        mp=mp*0.5+0.5
-        #mask=mp*0.5+0.5
-        #print(mask.shape)
-        cv2.imshow("mask",mp)
-        img=img.squeeze(0).cpu().detach().numpy()
-        img=np.transpose(img,(1,2,0))
-        #img=img*0.5+0.5
-        cv2.imshow("img",img)
-        cv2.waitKey(1)
-        #break
-        '''
-
+if(__name__=="__main__"):
+    init()
+    inference()
