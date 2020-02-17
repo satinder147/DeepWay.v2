@@ -62,10 +62,11 @@ For Unet, I had to create binary masks for the input data, I used LabelBox for g
 ### 2. Model training
 I trained a lane detection model which would predict the lane(left,center,right) I am walking in.
 The loss vs iteration curve is as follows:
+<img src="readMe/lane.svg" height=400px/>
 
 I trained a U-Net based model for road segmentation on Azure.
 The loss(pink:traning, green:validation) vs iterations curve is as follows.<br>
-<img src="readMe/loss.svg" height=400px/>
+<img src="readMe/unet.svg" height=400px/>
 <br>
 ### 3. 3D modelling and printing
 My friend Sangam Kumar Padhi helped me with CAD model. You can look at it [here](https://github.com/satinder147/DeepWay.v2/blob/master/3D%20model/model.STL)
