@@ -1,29 +1,21 @@
-'''
-Things to complete by tonight
-1) make a proper blinderRunner.py
-2) make pytorch to trt converters
-3) runn the system with face detection and stop sign detection tonight
-4) run python file on startup
-5) start updating the readme add to TODO convert unet to tensorrt
-6) look for ways to improve lane prediction
-7) if lane prediction happens, use exponential avaerges for dealing with classification errors
-8) make a swap file
-'''
-
+import os
 import cv2
 import torch
 import time
 import numpy as np
 from PIL import Image
 from modelArch.cnn import Cnn
-from modelArch.unet import Unet
+from modelArch.unet import Unet  isko baad me bhi comment karke rakhna
 from torchvision import transforms
 from pedestrian import detector
 from hardware.controll_arduino import Arduino
+from lane_detection import lanes
 
 #from torchsummary import summary uncomment for taking a look at the model architecture
 #from torch2trt import TRTModule  I have been able to run tensorrt model, but don't know why the accuracy is extreamly low.
-
+import cv2
+from lane_detection import lanes
+from scipy import stats
 unet=None
 cnn=None
 device=None
@@ -38,16 +30,16 @@ person=None
 
 def init():
     global unet,cnn,device,trans,cap,dic,seconds,n,person,cap1
-    unet=Unet(3,1)
+    #unet=Unet(3,1)
     cnn=Cnn()
     #ard=Arduino()
     cnn.load_state_dict(torch.load("trained_models/lane.pth"))
     print("lane detection model loaded")
-    unet.load_state_dict(torch.load("trained_models/segmentation.pth"))
+    #unet.load_state_dict(torch.load("trained_models/segmentation.pth"))
     print("road segmentation model loaded")
     device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     cnn.to(device)
-    unet.to(device)
+    #unet.to(device)
     print("using ",device)
     trans=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))])
     cap=cv2.VideoCapture("dataSet/videos/two.mp4")
@@ -71,6 +63,8 @@ def inference():
             show=img.copy()
             lane=cv2.resize(lane,(64,64))
             segmentation=cv2.resize(segmentation,(256,256))
+            label_unet,segmentation=obj.get_lines(segmentation)
+            frame2=cv2.putText(frame2,label_unet,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
 
             boxes,labels=person.return_boxes(frame)
             for i in range(boxes.size(0)):
@@ -84,23 +78,21 @@ def inference():
             show=cv2.resize(show,(640,480))
 
             lane=trans(lane).unsqueeze(0)
-            segmentation=trans(segmentation).unsqueeze(0)
+            #segmentation=trans(segmentation).unsqueeze(0)
 
             lane=lane.to(device)
-            segmentation=segmentation.to(device)
+            #segmentation=segmentation.to(device)
 
             label=cnn(lane)
             lane=torch.argmax(label[0].cpu().detach()).numpy()
             lane=dic[lane.item()]
 
-            road=unet(segmentation)
-            road=road[0].cpu().detach().numpy()
-            road=np.transpose(road,(1,2,0))
-            road=road*0.5+0.5
+            # road=unet(segmentation)                             #commenting because pytorch unet 
+            # road=road[0].cpu().detach().numpy()                 #performs really poor
+            # road=np.transpose(road,(1,2,0))                  
+            # road=road*0.5+0.5
 
             if((lane=="right" or lane=="center") and n%(seconds)==0):
-                #thread=threading.Thread(target=controll,args=(0,))
-                #thread.start()
                 #ard.left()
                 pass
 
@@ -109,11 +101,31 @@ def inference():
             fps=str(int(1/(end-start)))
             cv2.putText(show,lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
             cv2.imshow("img",show)
-            cv2.imshow("segmented_road",road)
+            #cv2.imshow("segmented_road",road)
             cv2.imshow("frame",frame)
             cv2.waitKey(1)
+def trial():
+    cap=cv2.VideoCapture("dataSet/videos/three.mp4")
+    obj=lanes()
+    dirr=None
+    slope1=None
+    intercept1=None
+    slope2=None
+    intercept2=None
+    while 1:
+        frame=cap.read()[1]
+        frame=cv2.resize(frame,(256,256))
+        label,frame2=obj.get_lines(frame)
+        frame2=cv2.putText(frame2,label,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+        
+        cv2.imshow("frame",frame)
+        cv2.imshow("lines",frame2)
+        
+        cv2.waitKey(1)
+
 
 
 if(__name__=="__main__"):
     init()
     inference()
+    trial()
