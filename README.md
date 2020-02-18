@@ -68,9 +68,10 @@ I trained a U-Net based model for road segmentation on Azure.
 The loss(pink:traning, green:validation) vs iterations curve is as follows.<br>
 <img src="readMe/unet.svg" height=400px/>
 <br>
-**though the loss is less the model does not perform well**
-I trained a model in keras with a different architecture performs really well
-Loss vs iterations curve is:
+**though the loss is less the model does not perform well**<br>
+***I trained a model in keras with a different architecture performs really well
+Loss vs iterations curve is:***
+<img src="readMe/keras_unet.png" height=400px/>
 
 ### 3. 3D modelling and printing
 My friend Sangam Kumar Padhi helped me with CAD model. You can look at it [here](https://github.com/satinder147/DeepWay.v2/blob/master/3D%20model/model.STL)
@@ -87,7 +88,7 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 4. I am doing naive approach for path planning right now. **Assumption**: Only people will be on the streets. 
 5. For pedestrian detection, I am using Mobilenet V1 SSD. Thanks to [Hao](https://github.com/qfgaohao). It runs at 5FPS. I tried to run object detection models in jetson-inference. If runs at approx 15 FPS, but I was not able to capture frames using opencv while gstreamer was also capturing frames.
 5. To cope up with the slow frame-rate of Mobilenet, I combined it with object tracking. Object detection ran once in 3 seconds to re seed the object-tracker.
-6. Overall the system runs at 5 FPS. I am running my nano at 5W with a usb type B power supply of 5V 2 Amp. Running the jetson in 10W mode using a 5V 4A supply would further improve performance.
+6. Overall the system runs at 3 FPS. I am running my nano at 5W with a usb type B power supply of 5V 2 Amp. Running the jetson in 10W mode using a 5V 4A supply would further improve performance.
 
 # TODO
 - [x] Collect training data.
@@ -125,7 +126,9 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 7. [U-Net implementation(Heet Sankesara)](https://towardsdatascience.com/u-net-b229b32b4a71)
 8. [Hao pytorch-ssd](https://github.com/qfgaohao/pytorch-ssd)
 9. [Jetson-hacks](https://www.jetsonhacks.com/)
-10.
+10. [Tensorflow](https://www.tensorflow.org/)
+11. [Keras](https://keras.io/)
+12. [Advanced lane detection-Eddie Forson](https://towardsdatascience.com/teaching-cars-to-see-advanced-lane-detection-using-computer-vision-87a01de0424f)
 
 # Citations
 
