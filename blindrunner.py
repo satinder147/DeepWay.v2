@@ -5,7 +5,7 @@ import time
 import numpy as np
 from PIL import Image
 from modelArch.cnn import Cnn
-from modelArch.unet import Unet  isko baad me bhi comment karke rakhna
+#from modelArch.unet import Unet  isko baad me bhi comment karke rakhna
 from torchvision import transforms
 from pedestrian import detector
 from hardware.controll_arduino import Arduino
@@ -26,10 +26,10 @@ dic=None
 n=None
 seconds=None
 person=None
-
+obj=None
 
 def init():
-    global unet,cnn,device,trans,cap,dic,seconds,n,person,cap1
+    global unet,cnn,device,trans,cap,dic,seconds,n,person,cap1,obj
     #unet=Unet(3,1)
     cnn=Cnn()
     #ard=Arduino()
@@ -46,11 +46,12 @@ def init():
     dic={0:"left",1:"center",2:"right"}
     n=0
     seconds=3*30
-    cap1=cv2.VideoCapture(2)
+    cap1=cv2.VideoCapture(0)
     person=detector()
+    obj=lanes()
 
 def inference():
-    global unet,cnn,device,trans,cap,dic,seconds,n,detector,cap1
+    global unet,cnn,device,trans,cap,dic,seconds,n,detector,cap1,obj
     while True:
         with torch.no_grad():
             start=time.time()
@@ -64,7 +65,7 @@ def inference():
             lane=cv2.resize(lane,(64,64))
             segmentation=cv2.resize(segmentation,(256,256))
             label_unet,segmentation=obj.get_lines(segmentation)
-            frame2=cv2.putText(frame2,label_unet,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+            frame2=cv2.putText(segmentation,label_unet,(10,10),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
 
             boxes,labels=person.return_boxes(frame)
             for i in range(boxes.size(0)):
@@ -101,27 +102,10 @@ def inference():
             fps=str(int(1/(end-start)))
             cv2.putText(show,lane+"  fps: "+fps,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
             cv2.imshow("img",show)
-            #cv2.imshow("segmented_road",road)
+            cv2.imshow("lane lines",frame2)
             cv2.imshow("frame",frame)
+
             cv2.waitKey(1)
-def trial():
-    cap=cv2.VideoCapture("dataSet/videos/three.mp4")
-    obj=lanes()
-    dirr=None
-    slope1=None
-    intercept1=None
-    slope2=None
-    intercept2=None
-    while 1:
-        frame=cap.read()[1]
-        frame=cv2.resize(frame,(256,256))
-        label,frame2=obj.get_lines(frame)
-        frame2=cv2.putText(frame2,label,(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
-        
-        cv2.imshow("frame",frame)
-        cv2.imshow("lines",frame2)
-        
-        cv2.waitKey(1)
 
 
 
