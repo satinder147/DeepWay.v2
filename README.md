@@ -81,6 +81,12 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 <img src="readMe/specs4.jpg" height=400 width=600 align="center" hspace=125px/>
 <img src="readMe/specs2.jpg" height=400 width=600 align="center"  hspace=125px/>
 <img src="readMe/specs3.jpg" height=400 width=600 align="center"  hspace=125px/>
+
+### 5. Pedestrian detection using Mobilenet V1 SSD
+I am using [Hao](https://github.com/qfgaohao/pytorch-ssd) repository for pedestrian detection .
+It runs at approx 10 FPS(individulaly) on the jetson nano and the accuracy is also pretty good.
+
+
 # Results
 1. Model for lane detection works really well, it runs at approx 25 fps on the jetson nano. I think it is the really good for an 30 FPS camera.
 2. The road segmentation model does not work as good as the lane detection one. Though the loss decreases very much but still the output is not as expected.[@ptrblck](https://discuss.pytorch.org/t/output-not-good-though-loss-is-very-less/69726/4) suggests to use focal loss or weighted loss.
