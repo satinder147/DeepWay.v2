@@ -58,6 +58,7 @@ class lanes:
         img2=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         t,img2=cv2.threshold(img2,200,255,cv2.THRESH_BINARY)
         img2=img2.astype("uint8")
+        cv2.imshow("unet output",img2)
         img2=cv2.blur(img2,(3,3))
         can=cv2.Canny(img2,150,50)
         can=cv2.dilate(can,None,iterations=3)
@@ -106,7 +107,7 @@ class lanes:
         xx2=int((256-intercept2)/slope2)
 
         centerx,centery=128,256
-        frame2=cv2.circle(frame2,(centerx,centery),4,(0,255,0),2)
+        frame2=cv2.circle(frame2,(centerx,centery),4,(0,255,0),-4)
         s, i,_,_,_ = stats.linregress([x,int((xx1+xx2)/2)], [y,256])
         side=s*centerx+i-centery
         frame2=cv2.circle(frame2,(x,y),4,(255,0,0),-2)
