@@ -68,6 +68,10 @@ I trained a U-Net based model for road segmentation on Azure.
 The loss(pink:traning, green:validation) vs iterations curve is as follows.<br>
 <img src="readMe/unet.svg" height=400px/>
 <br>
+**though the loss is less the model does not perform well**
+I trained a model in keras with a different architecture performs really well
+Loss vs iterations curve is:
+
 ### 3. 3D modelling and printing
 My friend Sangam Kumar Padhi helped me with CAD model. You can look at it [here](https://github.com/satinder147/DeepWay.v2/blob/master/3D%20model/model.STL)
 
@@ -79,9 +83,12 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 # Results
 1. Model for lane detection works really well, it runs at approx 25 fps on the jetson nano. I think it is the really good for an 30 FPS camera.
 2. The road segmentation model does not work as good as the lane detection one. Though the loss decreases very much but still the output is not as expected.[@ptrblck](https://discuss.pytorch.org/t/output-not-good-though-loss-is-very-less/69726/4) suggests to use focal loss or weighted loss.
-3. I am doing naive approach for path planning right now. **Assumption**: Only people will be on the streets. 
-4. For pedestrian detection, I am using Mobilenet V1 SSD. Thanks to [Hao](https://github.com/qfgaohao). It runs at 5FPS. I tried to run object detection models in jetson-inference. If runs at approx 15 FPS, but I was not able to capture frames using opencv while gstreamer was also capturing frames.
+3. I trained another model using a different unet architecture in keras and it performs really well.
+4. I am doing naive approach for path planning right now. **Assumption**: Only people will be on the streets. 
+5. For pedestrian detection, I am using Mobilenet V1 SSD. Thanks to [Hao](https://github.com/qfgaohao). It runs at 5FPS. I tried to run object detection models in jetson-inference. If runs at approx 15 FPS, but I was not able to capture frames using opencv while gstreamer was also capturing frames.
 5. To cope up with the slow frame-rate of Mobilenet, I combined it with object tracking. Object detection ran once in 3 seconds to re seed the object-tracker.
+6. Overall the system runs at 5 FPS. I am running my nano at 5W with a usb type B power supply of 5V 2 Amp. Running the jetson in 10W mode using a 5V 4A supply would further improve performance.
+
 # TODO
 - [x] Collect training data.
 - [x] Train a lane detection model.
@@ -89,9 +96,11 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 - [x] Add sound support.
 - [x] 3D print the spectacles.
 - [x] Train U-Net for doing a lot of other stuff(like path planing).
-- [ ] Improve U-Net accuracy.(The loss is very low, but the model does not come up to my expectations.
-- [ ] Drawing Lanes(Depends upon the improving unet accuracy)
+- [x] Improve U-Net accuracy.(The loss is very low, but the model does not come up to my expectations)
+- [x] Drawing Lanes(Depends upon the improving unet accuracy)
+- [ ] Improving lane detection by taking averages of lane positions.
 - [x] Pedestrain Detection with tracking for more fps.
+- [ ] Improving speed of pedestrian detection by using tracking instead of detection.
 - [ ] Try to run optimized models on jetson(Available in jetson-inference)
 - [ ] Optimizing everything to run even faster on Jetson nano.(conversion of models into Tensorrt).
 - [ ] Adding G.P.S. support for better navigation.
