@@ -5,6 +5,7 @@ from model import Models
 from sklearn.model_selection import train_test_split
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import Adam
+import matplotlib.pyplot as plt
 w=256
 h=256
 c=3
@@ -21,5 +22,13 @@ y_data=np.array(y_data,dtype='float')/255.0
 opt=Adam(lr=0.001,decay=0.001/50)
 train_x,test_x,train_y,test_y=train_test_split(x_data,y_data,test_size=0.1,random_state=30)
 auto_encoder.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
-auto_encoder.fit(train_x,train_y,batch_size=1,shuffle='true',epochs=100,validation_data=(test_x,test_y),verbose=1)
+history=auto_encoder.fit(train_x,train_y,batch_size=1,shuffle='true',epochs=100,validation_data=(test_x,test_y),verbose=1)
 auto_encoder.save('road3.MODEL')
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.savefig("res.png")
+
