@@ -28,9 +28,10 @@ This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). 
 5. Change the COM number in the arduno.py file according to your system.
 6. Connect the Ardunio nano and USB audio adapter to your PC. 
 7. Change CAM to video path instead of 0 for running the system on video.
-8. Download the weights and save it in checpoints/
+8. Download the weights and save it in checkpoints/
 9. change name of weight in blindrunner.py
-10. Run blindrunner.py
+10. Compile and run arduino Nano code in the arduino nano.
+11. Run blindrunner.py
 
 # Software Requirements(Jetson nano)
 1. Follow [these](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) instructions for starting up with Jetson nano.
@@ -96,6 +97,7 @@ It runs at approx 10 FPS(individulaly) on the jetson nano and the accuracy is al
 5. To cope up with the slow frame-rate of Mobilenet, I combined it with object tracking. Object detection ran once in 3 seconds to re seed the object-tracker.
 6. Overall the system runs at 3 FPS. I am running my nano at 5W with a usb type B power supply of 5V 2 Amp. Running the jetson in 10W mode using a 5V 4A supply would further improve performance.
 
+## The project is complete from my side, but there is other functionality I desire to add in future
 # TODO
 - [x] Collect training data.
 - [x] Train a lane detection model.
