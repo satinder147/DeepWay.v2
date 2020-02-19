@@ -1,7 +1,6 @@
 # DEEPWAY V2
 Autonomous navigation for blind people.
-This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). You can have a look at this [video]
-(https://www.youtube.com/watch?v=qkmU8mN0LwE).
+This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). You can have a look at this [video](https://www.youtube.com/watch?v=qkmU8mN0LwE)
 <img src="readMe/cover.png" height=500  hspace=20px vspace=200px/>
 
 # Before proceeding look at demo of version2 at
