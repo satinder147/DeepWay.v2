@@ -10,6 +10,11 @@ This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). 
 > I wanted to implement the project using pytorch, since the earlier repository was completely based on keras.
 
 
+# How is it better than others:
+1. Cost effective: I made the entire project in less than **RS 10000** which less than **$200**.
+2. Providing information to the blind person using haptic feedback.
+3. Everything runs on a edge device--> Nvidiai Jetson Nano.
+
 # Hardware requirements
 1. Nvidia Jetson Nano.
 2. Arduino nano.
@@ -30,10 +35,8 @@ This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). 
 5. Change the COM number in the arduno.py file according to your system.
 6. Connect the Ardunio nano and USB audio adapter to your PC. 
 7. Change CAM to video path instead of 0 for running the system on video.
-8. Download the weights and save it in checkpoints/
-9. change name of weight in blindrunner.py
-10. Compile and run arduino Nano code in the arduino nano.
-11. Run blindrunner.py
+8. Compile and run arduino Nano code in the arduino nano.
+9. Run blindrunner.py
 
 # Software Requirements(Jetson nano)
 1. Follow [these](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) instructions for starting up with Jetson nano.
@@ -98,6 +101,7 @@ It runs at approx 10 FPS(individulaly) on the jetson nano and the accuracy is al
 5. For pedestrian detection, I am using Mobilenet V1 SSD. Thanks to [Hao](https://github.com/qfgaohao). It runs at 5FPS. I tried to run object detection models in jetson-inference. If runs at approx 15 FPS, but I was not able to capture frames using opencv while gstreamer was also capturing frames.
 5. To cope up with the slow frame-rate of Mobilenet, I combined it with object tracking. Object detection ran once in 3 seconds to re seed the object-tracker.
 6. Overall the system runs at 3 FPS. I am running my nano at 5W with a usb type B power supply of 5V 2 Amp. Running the jetson in 10W mode using a 5V 4A supply would further improve performance.
+<img src="readMe/resultss.png" height=500  hspace=20px vspace=200px/>
 
 ## The project is complete from my side, but there is other functionality I desire to add in future
 # TODO
