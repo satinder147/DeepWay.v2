@@ -64,8 +64,8 @@ def inference():
             show=img.copy()
             lane=cv2.resize(lane,(64,64))
             segmentation=cv2.resize(segmentation,(256,256))
-            label_unet,segmentation=obj.get_lines(segmentation)
-            frame2=cv2.putText(segmentation,label_unet,(10,10),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+            obj.get_lines(segmentation)
+            #frame2=cv2.putText(segmentation,label_unet,(10,10),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
 
             boxes,labels=person.return_boxes(frame)
             for i in range(boxes.size(0)):

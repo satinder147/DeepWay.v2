@@ -88,8 +88,17 @@ class lanes:
                 sr,ir=self.lane(right)
                 self.r=self.plot_line(frame2,(50,256),sr,ir)
 
-        return self.direction(frame2)
+        q=self.direction(frame2)
+        return q
     
+
+    def side(self,x1,x2,y1,y2,x,y):
+        dirr=(y2-y1)*(x-x1)-(y-y1)*(x2-x1)
+        if(dirr<0):
+            return "left"
+        else:
+            return "right"
+        
     def direction(self,frame2):
 
         if(self.r is None):
@@ -103,19 +112,30 @@ class lanes:
 
         x=int((intercept2-intercept1)/(slope1-slope2))
         y=int(slope1*x+intercept1)
-        xx1=int((256-intercept1)/slope1)
+        xx1=int((256-intercept1)/slope1) # these lines cause division by zero exception
         xx2=int((256-intercept2)/slope2)
-
         centerx,centery=128,256
-        frame2=cv2.circle(frame2,(centerx,centery),4,(0,255,0),-4)
-        s, i,_,_,_ = stats.linregress([x,int((xx1+xx2)/2)], [y,256])
-        side=s*centerx+i-centery
+        frame2=cv2.circle(frame2,(centerx,centery),10,(0,255,0),-10)
+        x1,x2,y1,y2=x,int((xx1+xx2)/2),y,256
+
+        #side=(y2-y1)*(centerx-x1)-(centery-y1)*(x2-x1)
         frame2=cv2.circle(frame2,(x,y),4,(255,0,0),-2)
         frame2=cv2.line(frame2,(x,y),(int((xx1+xx2)/2),256),(0,255,0),2)
-        if(side<0):
-            return "left",frame2
-        else:
-            return "right",frame2
+        center=self.side(x1,x2,y1,y2,centerx,centery)
+        left=self.side(x,xx1,y,256,centerx,centery)
+        right=self.side(x,xx2,y,256,centerx,centery)
+        final="move straight"
+        if(center=="right"):
+            final="move left"
+        if(center=="left" and left=="left"):
+            final="move right"
+        
+        #frame2=cv2.putText(frame2,center,(10,10),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+        #frame2=cv2.putText(frame2,left,(10,30),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+        frame2=cv2.putText(frame2,final,(10,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+        cv2.imshow("frame2",frame2)
+        return center
+
 
 
             
