@@ -12,7 +12,7 @@ This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). 
 
 # How is it better than others:
 1. Cost effective: I made the entire project in less than **RS 10000** which less than **$200**.
-2. Providing information to the blind person using haptic feedback.
+2. Blind people generally develop other senses like hearing very well. Taking away one of their senses by using earphones   would not have been nice so I am providing information to the blind person using haptic feedback.
 3. Everything runs on a edge device--> Nvidiai Jetson Nano.
 
 # Hardware requirements
