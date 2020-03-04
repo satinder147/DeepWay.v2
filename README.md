@@ -154,3 +154,4 @@ Tell me if you liked it by giving a star. Also check out my other repositories, 
 1. [Geospatial Magazine](https://www.geospatialworld.net/blogs/now-visually-impaired-can-navigate-easily-with-deepway/)
 2. [Hackster](https://blog.hackster.io/navigation-glasses-gently-poke-you-in-the-right-direction-21acc16c8b14)
 3. [Anyline](https://anyline.com/news/3-inspiring-ai-projects-we-love/)
+4. [Arduino blog](https://blog.arduino.cc/2018/08/20/deepway-helps-the-visually-impaired-navigate-with-a-tap/)
