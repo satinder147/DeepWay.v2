@@ -1,7 +1,7 @@
 /dataSet
 /voiceCommands/clips
 .vscode/  
-#removing git rm --cached .vscode/. Because the file was being tracked
+/deepway/trained_models
 *.mp4
 **/*.pyc
 **/__pycache__
