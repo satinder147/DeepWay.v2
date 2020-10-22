@@ -2,179 +2,181 @@ import cv2
 import numpy as np
 from scipy import stats
 from collections import deque
-from pydub import AudioSegment
-from pydub.playback import play
 from models.unet_keras import Models
 from keras.preprocessing.image import img_to_array
 
 
-def play_audio(name):
-    song = AudioSegment.from_mp3(name)
-    play(song)
-
-
 class Lanes:
-    """
-    This class is responsible for extracting lane lines,
-    and then predicting in which direction to move.
-    """
     def __init__(self):
-        model = Models(256, 256, 3)
-        self.model = model.arch3()
-        self.model.load_weights("trained_models/lane_lines.MODEL")
+        self.model = Models(256, 256, 3)
+        self.model = self.model.arch3()
+        self.model.load_weights("segmentation.MODEL")
         self.deq = deque(maxlen=10)
 
     @staticmethod
-    def lane(lines):
+    def lane(all_lines):
         """
+        Use linear regression to draw a line between points.
         Args:
-            lines: Since hough line transform detections multiple lines for a single line
-            so the resulting lane line is the average of all those. Or we can fit a line through all
-            those two dimensional points.
-
-        Returns: average lane line slope and intercept.
+            all_lines (list):
+        Returns:
+            line_slope
+            line_intercept
         """
-        xs = []
-        ys = []
-        for x1, y1, x2, y2 in lines:
-            xs.append(x1)
-            xs.append(x2)
-            ys.append(y1)
-            ys.append(y2)
+        xs, ys = [], []
+        for line_x1, line_y1, line_x2, line_y2 in all_lines:
+            xs.append(line_x1)
+            xs.append(line_x2)
+            ys.append(line_y1)
+            ys.append(line_y2)
         if len(xs):
-            slope, intercept, _, _, _ = stats.linregress(xs, ys)
-            return slope, intercept
+            line_slope, line_intercept, *_ = stats.linregress(xs, ys)
+            return line_slope, line_intercept
         return 1e-3, 1e-3
 
     @staticmethod
-    def side(x, y, x1, y1, x2, y2):
-        """
-        Args:
-            x,y:  coordinates of the person
-            x1, y1, x2, y2 : starting and ending points of the center, left, right line.
-        Returns: Position of the person w.r.t the left, center, right line.
-        """
-        return (y2 - y1) * (x - x1) - (y - y1) * (x2 - x1)
+    def side(point_x, point_y, line_x1, line_y1, line_x2, line_y2):
+        return (line_y2 - line_y1) * (point_x - line_x1) - (point_y - line_y1) * (line_x2 - line_x1)
 
-    def meann(self):
+    def mean(self):
         """
-        Returns: because the output from a neural network can subject to noise. To prevent this
-        we take average of the last 10 (or I say n) readings.
+        Returns average of left and right lane line.
+        Args:
+            deque:
+        Returns:
         """
-        s1 = []
-        i1 = []
-        s2 = []
-        i2 = []
-        for i in self.deq:
-            s1.append(i[0])
-            i1.append(i[1])
-            s2.append(i[2])
-            i2.append(i[3])
-        return sum(s1) / len(s1), sum(i1) / len(s1), sum(s2) / len(s1), sum(i2) / len(s1),
+        slope_1, intercept_1, slope_2, intercept_2 = [], [], [], []
+        for element in self.deq:
+            slope_1.append(element[0])
+            intercept_1.append(element[1])
+            slope_2.append(element[2])
+            intercept_2.append(element[3])
+        num_elements = len(slope_1)
+        return sum(slope_1)/num_elements, sum(intercept_1)/num_elements,\
+               sum(slope_2)/num_elements, sum(intercept_2)/num_elements
 
     @staticmethod
-    def position(d1, d2, d3):
-        """
-        Returns: the position of the person on the road.
-        """
-        label = None
-        if d1 > 0:
-            label = "offroad->left"
-        elif d2 > 0:
+    def area(left_line, center_line, right_line):
+        label = "none"
+        if left_line > 0:
+            label = "off-road->left"
+        elif center_line > 0:
             label = "left region"
-        elif d3 < 0:
-            label = "offroad->right"
-        elif d2 < 0:
+        elif right_line < 0:
+            label = "off-road->right"
+        elif center_line < 0:
             label = "right region"
-
         return label
 
-    def get_lines(self, frame):
+    def get_lanes_prediction(self, frame, debug=False):
         """
+        Get lane lines for a frame
         Args:
-            frame: input image
+            frame:
+            debug:
 
-        Returns: returns the position of the person on the road.
+        Returns:
 
         """
+        # Get the binary road mask and preprocess it.
         frame = cv2.resize(frame, (256, 256))
-        frame2 = frame.copy()
-        frame = cv2.blur(frame, (3, 3))
-        frame = img_to_array(frame)
-        frame = frame.astype("float") / 255.0
+        frame_copy = cv2.blur(frame, (3, 3))
+        frame = img_to_array(frame_copy)
+        frame = frame.astype("float")/255.0
         frame = np.expand_dims(frame, axis=0)
         prediction = self.model.predict(frame)[0]
-        mask = prediction * 255
-        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        mask = mask.astype("uint8")
-        _, mask = cv2.threshold(mask, 200, 255, cv2.THRESH_BINARY)
-        mask = cv2.dilate(mask, None, iterations=2)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
-        lines = cv2.HoughLinesP(mask, 1, np.pi / 180, 50, maxLineGap=100, minLineLength=5)
-        slopes = []
+        prediction = prediction*255
+        prediction = cv2.cvtColor(prediction, cv2.COLOR_BGR2GRAY)
+        if debug:
+            cv2.imshow("binary road mask", prediction)
+        prediction = prediction.astype("uint8")
+        threshold, prediction = cv2.threshold(prediction, 200, 255, cv2.THRESH_BINARY)
+        prediction = cv2.dilate(prediction, None, iterations=2)
+        prediction = cv2.erode(prediction, None, iterations=2)
+        prediction = cv2.dilate(prediction, None, iterations=2)
+        # get lines from the binary mask
+        lines = cv2.HoughLinesP(prediction, 1, np.pi/180, 50, maxLineGap=100, minLineLength=5)
+        left, right, slopes = [], [], []
+
+        # Separate left and right line based on slope
         if lines is not None:
             for line in lines:
                 for x1, y1, x2, y2 in line:
                     if x1 != x2:
-                        slope = (y2 - y1) / (x2 - x1)
+                        slope = (y2-y1)/(x2-x1)
                         slopes.append((slope, [x1, y1, x2, y2]))
+                        if slope > 0:
+                            left.append([x1, y1, x2, y2])
+                        else:
+                            right.append([x1, y1, x2, y2])
+
+        # Lines with slope less than mean slope are left lines, else right
         slopes.sort(key=lambda x: x[0])
-        left = []
-        right = []
-        # Sorting the slopes list and then taking mean, those with slopes less than mean and those with greater
-        # than mean are the slopes of the two lane lines.
+        left2, right2 = [], []
         mean = 0
         for i in range(len(slopes)):
             mean += slopes[i][0]
         mean /= len(slopes)
+        # mean=(slopes[0][0]+slopes[len(slopes)-1][0])/2
         for i in range(len(slopes)):
             if slopes[i][0] < mean:
-                left.append(slopes[i][1])
+                left2.append(slopes[i][1])
             else:
-                right.append(slopes[i][1])
+                right2.append(slopes[i][1])
 
-        s1, i1 = Lanes.lane(left)
-        s2, i2 = Lanes.lane(right)
+        # Fit lines through line point using linear regression
+        s1, i1 = self.lane(left2)
+        s2, i2 = self.lane(right2)
         self.deq.append((s1, i1, s2, i2))
-        s1, i1, s2, i2 = self.meann()
-        # calculating the parameters for the center line.
+        # Get average of last 10 lane lines
+        s1, i1, s2, i2 = self.mean()
+
+        # x coordinate of both the lines at y=256, .i.e. where does the two lane lines intersect the x axis.
         y1 = 256
-        x1 = (y1 - i1) / s1
-        x2 = (y1 - i2) / s2
+        x1 = (y1-i1)/s1
+        x2 = (y1-i2)/s2
+
         y2 = 40
+        # x3 = (y2-i1)/s1
+        # x4 = (y2-i2)/s2
         # cv2.line(frame2,(int(x1),y1),(int(x3),y2),(255,0,0),2)
         # cv2.line(frame2,(int(x2),y1),(int(x4),y2),(255,0,0),2)
-        # width/2,0 can be taken as the point where the person is w.r.t the complete image.
+
+        # Position of the person
         person = (128, 256)
-        cv2.circle(frame2, person, 6, (0, 255, 0), -6)
-        lower = (int((x1 + x2) / 2), 256)
-        lower_x = (i2 - i1) / (s1 - s2)
-        lower_y = lower_x * s1 + i1
+        cv2.circle(frame_copy, person, 6, (0, 255, 0), -6)
+
+        # center line coordinates
+        lower = (int((x1+x2)/2), 256)
+        lower_x = (i2-i1)/(s1-s2)
+        lower_y = lower_x*s1+i1
         upper = (int(lower_x), int(lower_y))
-        cv2.circle(frame2, lower, 5, (0, 0, 255), -5)
-        cv2.circle(frame2, upper, 5, (0, 0, 255), -5)
 
-        d1 = Lanes.side(person[0], person[1], lower[0], lower[1], upper[0], upper[1])
-        d2 = Lanes.side(person[0], person[1], x1, y1, upper[0], upper[1])
-        d3 = Lanes.side(person[0], person[1], x2, y2, upper[0], upper[1])
-        side = Lanes.position(d2, d1, d3)
-        # n is the frame number, because I want the servo's to move every 60 frames.
-        cv2.putText(frame2, side, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        cv2.line(frame2, lower, upper, (0, 255, 0), 2)
-        cv2.line(frame2, (int(x1), y1), upper, (255, 0, 255), 2)  # right
-        cv2.line(frame2, (int(x2), y1), upper, (255, 0, 0), 2)  # left
-        cv2.imshow("segmentation", mask)
-        cv2.imshow("frame", frame2)
-        return side
+        # d=((upper[1]-lower_y)/(upper[0]-lower_x))*person[0]-lower_x+lower_y-person[1]
+        cv2.circle(frame_copy, lower, 5, (0, 0, 255), -5)
+        cv2.circle(frame_copy, upper, 5, (0, 0, 255), -5)
+
+        # find on which side of the lane lines(all three) the person is currently working
+        d1 = self.side(person[0], person[1], lower[0], lower[1], upper[0], upper[1])  # <0-> right else left
+        d2 = self.side(person[0], person[1], x1, y1, upper[0], upper[1])  # right <0-> right else left
+        d3 = self.side(person[0], person[1], x2, y2, upper[0], upper[1])  # left
+        position = self.area(d2, d1, d3)
+        # if arduino_enabled:
+        #     if position == "off-road->left" and n % 60 == 0:
+        #         ard.right()
+        #     elif position == "right region" and n % 60 == 0:
+        #         ard.left()
+        #     elif position == "off-road->right" and n % 60 == 0:
+        #         ard.left()
+        if debug:
+            cv2.putText(frame_copy, position, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.line(frame_copy, lower, upper, (0, 255, 0), 2)
+            cv2.line(frame_copy, (int(x1), y1), upper, (255, 0, 255), 2)  # right
+            cv2.line(frame_copy, (int(x2), y1), upper, (255, 0, 0), 2)  # left
+            cv2.imshow("segmentation", prediction)
+            cv2.imshow("frame", frame_copy)
+        return position
 
 
-if __name__ == "__main__":
-
-    cap = cv2.VideoCapture("")
+if __name__ == '__main__':
     obj = Lanes()
-    while 1:
-        ret, frame3 = cap.read()
-        obj.get_lines(frame3)
-        cv2.waitKey(1)
-
