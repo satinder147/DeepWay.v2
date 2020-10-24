@@ -9,8 +9,8 @@ from keras.preprocessing.image import img_to_array
 class Lanes:
     def __init__(self):
         self.model = Models(256, 256, 3)
-        self.model = self.model.arch3()
-        self.model.load_weights("segmentation.MODEL")
+        self.model = self.model.arch4()
+        self.model.load_weights("trained_models/lane_lines.MODEL")
         self.deq = deque(maxlen=10)
 
     @staticmethod
@@ -116,7 +116,10 @@ class Lanes:
         mean = 0
         for i in range(len(slopes)):
             mean += slopes[i][0]
-        mean /= len(slopes)
+        try:
+            mean /= len(slopes)
+        except ZeroDivisionError:
+            return None
         # mean=(slopes[0][0]+slopes[len(slopes)-1][0])/2
         for i in range(len(slopes)):
             if slopes[i][0] < mean:
@@ -136,9 +139,9 @@ class Lanes:
         x1 = (y1-i1)/s1
         x2 = (y1-i2)/s2
 
-        y2 = 40
-        # x3 = (y2-i1)/s1
-        # x4 = (y2-i2)/s2
+        y2 = 120
+        x3 = (y2-i1)/s1
+        x4 = (y2-i2)/s2
         # cv2.line(frame2,(int(x1),y1),(int(x3),y2),(255,0,0),2)
         # cv2.line(frame2,(int(x2),y1),(int(x4),y2),(255,0,0),2)
 
@@ -168,11 +171,19 @@ class Lanes:
         #         ard.left()
         #     elif position == "off-road->right" and n % 60 == 0:
         #         ard.left()
+
+        mask = np.zeros((256, 256), dtype=np.uint8)
+        # points = np.array([[int(x1), y1], [int(x2), y1], [x4, y2], [x3, y2]])
+        # points = np.expand_dims(points, axis=0)
+        # cv2.fillPoly(mask, points, (255,))
+        # cv2.imshow("mask", mask)
+
         if debug:
             cv2.putText(frame_copy, position, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.line(frame_copy, lower, upper, (0, 255, 0), 2)
             cv2.line(frame_copy, (int(x1), y1), upper, (255, 0, 255), 2)  # right
             cv2.line(frame_copy, (int(x2), y1), upper, (255, 0, 0), 2)  # left
+            cv2.line(frame_copy, (int(x3), y2), (int(x4,), y2), (255, 0, 0), 2)
             cv2.imshow("segmentation", prediction)
             cv2.imshow("frame", frame_copy)
         return position
@@ -180,3 +191,12 @@ class Lanes:
 
 if __name__ == '__main__':
     obj = Lanes()
+    cap = cv2.VideoCapture("1.mp4")
+    while 1:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        position = obj.get_lanes_prediction(frame, debug=True)
+        # cv2.imshow("frame", frame)
+        cv2.waitKey(1)
+
