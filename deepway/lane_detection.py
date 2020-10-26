@@ -1,4 +1,5 @@
 import cv2
+import math
 import numpy as np
 from scipy import stats
 from collections import deque
@@ -36,7 +37,12 @@ class Lanes:
 
     @staticmethod
     def side(point_x, point_y, line_x1, line_y1, line_x2, line_y2):
-        return (line_y2 - line_y1) * (point_x - line_x1) - (point_y - line_y1) * (line_x2 - line_x1)
+        # if required_dist:
+        numerator = point_x * (line_y2 - line_y1) - (line_x2 - line_x1) * point_y + (line_x2 - line_x1) * line_y1 -\
+               (line_y2 - line_y1) * line_x1
+        denominator = math.sqrt((line_x2 - line_x1)**2 + (line_y2 - line_y1)**2)
+        distance = numerator / denominator
+        return distance
 
     def mean(self):
         """
@@ -58,13 +64,13 @@ class Lanes:
     @staticmethod
     def area(left_line, center_line, right_line):
         label = "none"
-        if left_line > 0:
+        if left_line >= 0:
             label = "off-road->left"
-        elif center_line > 0:
+        elif center_line >= 0:
             label = "left region"
-        elif right_line < 0:
+        elif right_line <= 0:
             label = "off-road->right"
-        elif center_line < 0:
+        elif center_line <= 0:
             label = "right region"
         return label
 
@@ -144,7 +150,7 @@ class Lanes:
         x4 = (y2-i2)/s2
         # cv2.line(frame2,(int(x1),y1),(int(x3),y2),(255,0,0),2)
         # cv2.line(frame2,(int(x2),y1),(int(x4),y2),(255,0,0),2)
-
+        print(abs(x1-x2))
         # Position of the person
         person = (128, 256)
         cv2.circle(frame_copy, person, 6, (0, 255, 0), -6)
@@ -164,6 +170,7 @@ class Lanes:
         d2 = self.side(person[0], person[1], x1, y1, upper[0], upper[1])  # right <0-> right else left
         d3 = self.side(person[0], person[1], x2, y2, upper[0], upper[1])  # left
         position = self.area(d2, d1, d3)
+
         # if arduino_enabled:
         #     if position == "off-road->left" and n % 60 == 0:
         #         ard.right()
@@ -172,26 +179,22 @@ class Lanes:
         #     elif position == "off-road->right" and n % 60 == 0:
         #         ard.left()
 
-        mask = np.zeros((256, 256), dtype=np.uint8)
-        # points = np.array([[int(x1), y1], [int(x2), y1], [x4, y2], [x3, y2]])
-        # points = np.expand_dims(points, axis=0)
-        # cv2.fillPoly(mask, points, (255,))
-        # cv2.imshow("mask", mask)
-
         if debug:
+
             cv2.putText(frame_copy, position, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.line(frame_copy, lower, upper, (0, 255, 0), 2)
             cv2.line(frame_copy, (int(x1), y1), upper, (255, 0, 255), 2)  # right
             cv2.line(frame_copy, (int(x2), y1), upper, (255, 0, 0), 2)  # left
             cv2.line(frame_copy, (int(x3), y2), (int(x4,), y2), (255, 0, 0), 2)
             cv2.imshow("segmentation", prediction)
+            # frame_copy = cv2.resize(frame_copy, (1280, 720))
             cv2.imshow("frame", frame_copy)
         return position
 
 
 if __name__ == '__main__':
     obj = Lanes()
-    cap = cv2.VideoCapture("1.mp4")
+    cap = cv2.VideoCapture("3.mp4")
     while 1:
         ret, frame = cap.read()
         if not ret:
