@@ -2,9 +2,16 @@ import cv2
 import math
 import numpy as np
 from scipy import stats
+from display import Display
 from collections import deque
 from models.unet_keras import Models
 from keras.preprocessing.image import img_to_array
+
+
+def func(a, b):
+    if a > b:
+        a, b = b, a
+    return b - a
 
 
 class Lanes:
@@ -13,6 +20,7 @@ class Lanes:
         self.model = self.model.arch4()
         self.model.load_weights("trained_models/lane_lines.MODEL")
         self.deq = deque(maxlen=10)
+        self.obj2 = Display(600, 600)
 
     @staticmethod
     def lane(all_lines):
@@ -93,8 +101,6 @@ class Lanes:
         prediction = self.model.predict(frame)[0]
         prediction = prediction*255
         prediction = cv2.cvtColor(prediction, cv2.COLOR_BGR2GRAY)
-        if debug:
-            cv2.imshow("binary road mask", prediction)
         prediction = prediction.astype("uint8")
         threshold, prediction = cv2.threshold(prediction, 200, 255, cv2.THRESH_BINARY)
         prediction = cv2.dilate(prediction, None, iterations=2)
@@ -150,7 +156,6 @@ class Lanes:
         x4 = (y2-i2)/s2
         # cv2.line(frame2,(int(x1),y1),(int(x3),y2),(255,0,0),2)
         # cv2.line(frame2,(int(x2),y1),(int(x4),y2),(255,0,0),2)
-        print(abs(x1-x2))
         # Position of the person
         person = (128, 256)
         cv2.circle(frame_copy, person, 6, (0, 255, 0), -6)
@@ -165,11 +170,24 @@ class Lanes:
         cv2.circle(frame_copy, lower, 5, (0, 0, 255), -5)
         cv2.circle(frame_copy, upper, 5, (0, 0, 255), -5)
 
-        # find on which side of the lane lines(all three) the person is currently working
-        d1 = self.side(person[0], person[1], lower[0], lower[1], upper[0], upper[1])  # <0-> right else left
+        # find on which side of the lane lines(all three) the person is currently walking
+        d1 = self.side(person[0], person[1], lower[0], lower[1], upper[0], upper[1])  # distance from center line
         d2 = self.side(person[0], person[1], x1, y1, upper[0], upper[1])  # right <0-> right else left
         d3 = self.side(person[0], person[1], x2, y2, upper[0], upper[1])  # left
         position = self.area(d2, d1, d3)
+        # projecting on 2d plane
+        left_line_dist = func(lower[0], x1)
+        right_line_dist = func(x2, lower[0])
+        euclidean = person[0] - lower[0]
+        if d1 > 0:
+            p = (abs(euclidean) / left_line_dist) * 200
+            p = 300 - p
+        else:
+
+            p = (abs(euclidean) / right_line_dist) * 200
+            p = 300 + p
+        self.obj2.update(p)
+        self.obj2.plot()
 
         # if arduino_enabled:
         #     if position == "off-road->left" and n % 60 == 0:
@@ -180,26 +198,28 @@ class Lanes:
         #         ard.left()
 
         if debug:
-
             cv2.putText(frame_copy, position, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.line(frame_copy, lower, upper, (0, 255, 0), 2)
             cv2.line(frame_copy, (int(x1), y1), upper, (255, 0, 255), 2)  # right
             cv2.line(frame_copy, (int(x2), y1), upper, (255, 0, 0), 2)  # left
             cv2.line(frame_copy, (int(x3), y2), (int(x4,), y2), (255, 0, 0), 2)
+            cv2.imshow("binary road mask", prediction)
             cv2.imshow("segmentation", prediction)
-            # frame_copy = cv2.resize(frame_copy, (1280, 720))
             cv2.imshow("frame", frame_copy)
+            cv2.moveWindow("binary road mask", 0, 0)
+            cv2.moveWindow("segmentation", 450, 0)
+            cv2.moveWindow("frame", 830, 0)
         return position
 
 
 if __name__ == '__main__':
     obj = Lanes()
+
     cap = cv2.VideoCapture("3.mp4")
     while 1:
         ret, frame = cap.read()
         if not ret:
             break
         position = obj.get_lanes_prediction(frame, debug=True)
-        # cv2.imshow("frame", frame)
         cv2.waitKey(1)
 
