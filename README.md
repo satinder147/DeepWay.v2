@@ -1,58 +1,41 @@
-# DEEPWAY V2
-Autonomous navigation for blind people.
-This project is version 2 of [deepWay](https://github.com/satinder147/DeepWay). You can have a look at this [video](https://www.youtube.com/watch?v=qkmU8mN0LwE)
+## DEEPWAY V2
+### Autonomous navigation for blind people.
+  
+This project is version 2.1 of the DeepWay. See  [v1](https://github.com/satinder147/DeepWay). You can have a look at this [video](https://www.youtube.com/watch?v=qkmU8mN0LwE)
 <img src="readMe/cover.png" height=500  hspace=20px vspace=200px/>
 
-# Before proceeding look at demo of version2 at
-[DeepWay v.2](https://youtu.be/3aPsFYoD9pA)
-# A question you may have in mind
-#### If I already had a repository, why make another ?
-> Since V1 was based on keras, and I don't like tensorflow much, so for more controll I have shifted to pytorch.
-> It is complete redesign.
+**Before proceeding look at demo of version2 at [DeepWay v.2](https://youtu.be/3aPsFYoD9pA)  
+Not a 15 minute video person, have a look at this 2 minute trailer [DeepWay v2 -trailer](https://www.youtube.com/watch?v=ks8Rsd65RnM)**
+### A question you may have in mind
+##### If I already had a repository, why make another ?
+* Since V1 was based on keras, and I don't like tensorflow much, so for more control I have shifted to pytorch.  
+* It is complete redesign.
 
 
-# How is it better than others:
-1. Cost effective: I made the entire project in less than **RS 10000** which less than **$200**.
+### How is it better than others:
+1. Cost effective: This version costs approx **400** dollars.
 2. Blind people generally develop other senses like hearing very well. Taking away one of their senses by using earphones   would not have been nice so I am providing information to the blind person using haptic feedback.
-3. Everything runs on a edge device--> Nvidiai Jetson Nano.
+3. Everything runs on a edge device .i.e on the depth-ai kit.
 
-# Hardware requirements
-1. Nvidia Jetson Nano.
+### Hardware requirements
+1. Depth ai kit
 2. Arduino nano.
 3. 2 servo motors.
-4. USB audio adapter(as jetson nano does not have a audio jack)
-5. Ethernet cable
-6. Webcamera
-7. Power adapter for nvidia jetson nano
-8. 3D printer.(Not necessary)
-9. A latop(Nvidia GPU preferred) or any cloud service provider.
+4. raspberry pi or any other host device. (Will not be required once depthai kit GPIO support)
+5. Power adapter for depth ai kit.
+6. 3D printer.(Not necessary)
+7. A laptop(Nvidia GPU preferred) or any cloud service provider.
 
-# Software requirements(If running on Laptop)
-1. Ubuntu machine(16.04 preferred).
+### Installation instruction
+1. Clone this repository
 2. Install anaconda.
 3. Install the required dependencies. Some libraries like pytorch, opencv would require a little extra attention.<br>
 > conda env create -f deepWay.yml
-4. You can not clone the repository.
-5. Change the COM number in the arduno.py file according to your system.
-6. Connect the Ardunio nano and USB audio adapter to your PC. 
-7. Change CAM to video path instead of 0 for running the system on video.
+4. Change the COM number in the arduino.py file according to your system.
+5. Connect the Arduino nano.
 8. Compile and run arduino Nano code in the arduino nano.
 9. Run blindrunner.py
 
-# Software Requirements(Jetson nano)
-1. Follow [these](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) instructions for starting up with Jetson nano.
-2. For connecting headless with jetson nano(using ethernet cable). <br>
-```
-ifconfig
-Check inet addresss
-nmap -sn inet_address/24 --> will return live ip address.
-ssh machine_name@ip
-Enter password
-Now you can connect switch on desktop sharing
-Now connect to jetson using Reminna.
-
-```
-3. Now install all the required dependicies(it is a time comsuming task, don't loose hope).
 
 ### 1. Collecting dataSet and Generating image masks.
 I made videos of roads and converted those videos to jpg's. This way I collected a dataSet of approximately 10000 images.I collected images from left, right and center view(So automatically labelled). e.g:<br>
@@ -67,12 +50,13 @@ For Unet, I had to create binary masks for the input data, I used LabelBox for g
 **For downloading the labelled data from Labelbox, I have made a small utility named "downloader.py"**
    
 ### 2. Model training
-I trained a lane detection model which would predict the lane(left,center,right) I am walking in.
+I trained a lane detection model(Now deprecated) which would predict the lane(left,center,right) I am walking in.  
 The loss vs iteration curve is as follows:
+
 <img src="readMe/lane.svg" height=400px/>
 
 I trained a U-Net based model for road segmentation on Azure.
-The loss(pink:traning, green:validation) vs iterations curve is as follows.<br>
+The loss(pink: Train, green: Validation) vs iterations curve is as follows.<br>
 <img src="readMe/unet.svg" height=400px/>
 <br>
 **though the loss is less the model does not perform well**<br>
@@ -89,52 +73,30 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 <img src="readMe/specs2.jpg" height=400 width=600 align="center"  hspace=125px/>
 <img src="readMe/specs3.jpg" height=400 width=600 align="center"  hspace=125px/>
 
-### 5. Pedestrian detection using Mobilenet V1 SSD
-I am using [Hao](https://github.com/qfgaohao/pytorch-ssd) repository for pedestrian detection .
-It runs at approx 10 FPS(individulaly) on the jetson nano and the accuracy is also pretty good.
 
-
-# Results
-1. Model for lane detection works really well, it runs at approx 25 fps on the jetson nano. I think it is the really good for an 30 FPS camera.
-2. The road segmentation model does not work as good as the lane detection one. Though the loss decreases very much but still the output is not as expected.[@ptrblck](https://discuss.pytorch.org/t/output-not-good-though-loss-is-very-less/69726/4) suggests to use focal loss or weighted loss.
-3. I trained another model using a different unet architecture in keras and it performs really well.
-4. I am doing naive approach for path planning right now. **Assumption**: Only people will be on the streets. 
-5. For pedestrian detection, I am using Mobilenet V1 SSD. Thanks to [Hao](https://github.com/qfgaohao). It runs at 5FPS. I tried to run object detection models in jetson-inference. If runs at approx 15 FPS, but I was not able to capture frames using opencv while gstreamer was also capturing frames.
-5. To cope up with the slow frame-rate of Mobilenet, I combined it with object tracking. Object detection ran once in 3 seconds to re seed the object-tracker.
-6. Overall the system runs at 3 FPS. I am running my nano at 5W with a usb type B power supply of 5V 2 Amp. Running the jetson in 10W mode using a 5V 4A supply would further improve performance.
-<img src="readMe/resultss.png" height=500  hspace=20px vspace=200px/>
-
-## The project is complete from my side, but there is other functionality I desire to add in future
-# TODO
-- [x] Collect training data.
-- [x] Train a lane detection model.
-- [x] Add servo motors feedback support.
-- [x] Add sound support.
-- [x] 3D print the spectacles.
-- [x] Train U-Net for doing a lot of other stuff(like path planing).
-- [x] Improve U-Net accuracy.(The loss is very low, but the model does not come up to my expectations)
-- [x] Drawing Lanes(Depends upon the improving unet accuracy)
-- [ ] Improving lane detection by taking averages of lane positions.
-- [x] Pedestrain Detection with tracking for more fps.
-- [ ] Improving speed of pedestrian detection by using tracking instead of detection.
-- [ ] Try to run optimized models on jetson(Available in jetson-inference)
-- [ ] Optimizing everything to run even faster on Jetson nano.(conversion of models into Tensorrt).
-- [ ] Adding G.P.S. support for better navigation.
-- [ ] Adding path planning.
-- [ ] Adding face recognition support(I have a [face_recognition](https://github.com/satinder147/Attendance-using-Face) repository, so most of the work is done, but I think face recognition should be added after we perfect the navigation part.)
-
+#### FLOW
+1. Get camera feed.
+2. Run the image through the road segmentation model.
+3. Get lane lines from the segmentation mask.
+4. Get depth of all the objects in front of the person.
+5. Get all the objects in current lane.
+6. Plot all the objects on a 2d Screen.
+7. Push the person to the left lane (As per indian traffic rules)
+8. Use A-Star algorithm to get a path from current location to 2 meters ahead while maintaining distance from objects.
+9. Inform the user about all the navigation instructions by using the SERVO motors.
 
 # People to Thank
 1. **Army Institute of Technology (My college).**
 2. **Prof. Avinash Patil,Sangam Kumar Padhi, Sahil and Priyanshu for 3D modelling and printing.**
 3. **Shivam sharma and Arpit for data labelling.**
-4. **Nvidia for providing a free jetson kit.**
+4. **Luxonis for providing a free depth ai kit**
 5. **LabelBox: For providing me with the free license of their **Amazing Prodcut**.**
+6. **Luxonis slack channel**
 
 # References
 1. [Pytorch](https://pytorch.org/)
 2. [PyimageSearch](https://www.pyimagesearch.com/)
-3. [Pytorch Community--> special mention @ptrblck](https://discuss.pytorch.org/)
+3. [Pytorch Community, special mention @ptrblck](https://discuss.pytorch.org/)
 4. [AWS](https://aws.amazon.com/)
 5. [U-Net](https://arxiv.org/pdf/1505.04597.pdf)
 6. [U-Net implementation(usuyama)](https://github.com/usuyama/pytorch-unet)

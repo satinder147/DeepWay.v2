@@ -186,9 +186,10 @@ class Lanes:
 
             p = (abs(euclidean) / right_line_dist) * 200
             p = 300 + p
-        self.obj2.update(p)
-        self.obj2.plot()
 
+
+        for object_x, object_y in []:
+            if object_y <
         # if arduino_enabled:
         #     if position == "off-road->left" and n % 60 == 0:
         #         ard.right()
@@ -198,6 +199,8 @@ class Lanes:
         #         ard.left()
 
         if debug:
+            self.obj2.update(p)
+            self.obj2.plot()
             cv2.putText(frame_copy, position, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.line(frame_copy, lower, upper, (0, 255, 0), 2)
             cv2.line(frame_copy, (int(x1), y1), upper, (255, 0, 255), 2)  # right
