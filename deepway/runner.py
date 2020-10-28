@@ -81,10 +81,12 @@ if __name__ == '__main__':
     obj = DepthAi()
     lanes = Lanes()
     for frame, results in obj.run():
-        object_positions = []
-        for *_, x, y in results:
-            object_positions.append([x, y])
-        lanes.get_lanes_prediction(frame, object_positions, True)
+        label_object_mapping = {}
+        for *_, label, x, y in results:
+            if label not in label_object_mapping:
+                label_object_mapping[label] = []
+            label_object_mapping[label].append([x, y])
+        lanes.get_lanes_prediction(frame, label_object_mapping, True)
 
         for pt1, pt2, label, dist_x, dist_z in results:
             cv2.rectangle(frame, pt1, pt2, (0, 255, 0), 2)

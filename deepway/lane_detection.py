@@ -55,8 +55,6 @@ class Lanes:
     def mean(self):
         """
         Returns average of left and right lane line.
-        Args:
-            deque:
         Returns:
         """
         slope_1, intercept_1, slope_2, intercept_2 = [], [], [], []
@@ -82,13 +80,35 @@ class Lanes:
             label = "right region"
         return label
 
-    def get_lanes_prediction(self, frame, debug=False):
+    @staticmethod
+    def get_projection_x(points, lower, upper, i1, s1, i2, s2):
+        display_positions = []
+        for object_x, object_y in points:
+            if object_y <= upper[0]:
+                continue
+            point_x1 = (object_y - i1) / s1     # left
+            point_x2 = ((object_y - upper[1])*(lower[0]-upper[0]))/(lower[1]-upper[1]) + upper[0]
+            point_x3 = (object_y - i2) / s2     # center
+            left_line_d = func(point_x1, point_x2)
+            right_line_d = func(point_x2, point_x3)
+            side = Lanes.side(object_x, object_y, lower[0], lower[1], upper[0], upper[1])
+            dist = abs(object_x - point_x2)
+            if side > 0:
+                normalized_dist = (dist/left_line_d)*200
+                normalized_dist = 300 + normalized_dist
+            else:
+                normalized_dist = (dist/right_line_d)*200
+                normalized_dist = 300 + normalized_dist
+            display_positions.append([int(normalized_dist), int(object_y * 2.343)])  # 600/256
+        return display_positions
+
+    def get_lanes_prediction(self, frame, label_object_mapping, debug=False):
         """
         Get lane lines for a frame
         Args:
             frame:
+            label_object_mapping:
             debug:
-
         Returns:
 
         """
@@ -167,29 +187,30 @@ class Lanes:
         upper = (int(lower_x), int(lower_y))
 
         # d=((upper[1]-lower_y)/(upper[0]-lower_x))*person[0]-lower_x+lower_y-person[1]
-        cv2.circle(frame_copy, lower, 5, (0, 0, 255), -5)
-        cv2.circle(frame_copy, upper, 5, (0, 0, 255), -5)
+        # cv2.circle(frame_copy, lower, 5, (0, 0, 255), -5)
+        # cv2.circle(frame_copy, upper, 5, (0, 0, 255), -5)
 
         # find on which side of the lane lines(all three) the person is currently walking
         d1 = self.side(person[0], person[1], lower[0], lower[1], upper[0], upper[1])  # distance from center line
         d2 = self.side(person[0], person[1], x1, y1, upper[0], upper[1])  # right <0-> right else left
         d3 = self.side(person[0], person[1], x2, y2, upper[0], upper[1])  # left
         position = self.area(d2, d1, d3)
+
+        for label in label_object_mapping:
+            object_positions = label_object_mapping[label]
+            for object_x, object_y in object_positions:
+                cv2.circle(frame, (object_x, object_y), 5, (0, 0, 255), -1)
+
         # projecting on 2d plane
-        left_line_dist = func(lower[0], x1)
-        right_line_dist = func(x2, lower[0])
-        euclidean = person[0] - lower[0]
-        if d1 > 0:
-            p = (abs(euclidean) / left_line_dist) * 200
-            p = 300 - p
-        else:
-
-            p = (abs(euclidean) / right_line_dist) * 200
-            p = 300 + p
-
-
-        for object_x, object_y in []:
-            if object_y <
+        p = Lanes.get_projection_x([[128, 220]], lower, upper, i1, s1, i2, s2)[0][0]
+        label_translated_points_mapping = {}
+        for label in label_object_mapping:
+            object_positions = label_object_mapping[label]
+            translated_points = Lanes.get_projection_x(object_positions, lower, upper, i1, s1, i2, s2)
+            if label not in label_translated_points_mapping:
+                label_translated_points_mapping[label] = []
+            label_translated_points_mapping[label].append(translated_points)
+        label_translated_points_mapping['user'] = [[p, 550]]
         # if arduino_enabled:
         #     if position == "off-road->left" and n % 60 == 0:
         #         ard.right()
@@ -199,7 +220,8 @@ class Lanes:
         #         ard.left()
 
         if debug:
-            self.obj2.update(p)
+            self.obj2.update(label_translated_points_mapping)
+            # self.obj2.update(translated_points, 'object_pedestrian')
             self.obj2.plot()
             cv2.putText(frame_copy, position, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.line(frame_copy, lower, upper, (0, 255, 0), 2)
@@ -223,6 +245,6 @@ if __name__ == '__main__':
         ret, frame = cap.read()
         if not ret:
             break
-        position = obj.get_lanes_prediction(frame, debug=True)
+        position = obj.get_lanes_prediction(frame, {}, debug=True)
         cv2.waitKey(1)
 

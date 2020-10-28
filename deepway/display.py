@@ -1,27 +1,41 @@
 import cv2
 import numpy as np
 
+name_to_img_name = {'user': 'person.png', 'person': 'pedestrian.png'}
+
 
 class Display:
     def __init__(self, *args):
         self.w, self.h = args
         self.start = 0
+        self.name_img_mask = {}
         self.frame = self.get_road()
         self.frame_copy = self.frame.copy()
-        self.person = cv2.imread("person.png", -1)
-        self.person = cv2.resize(self.person, (80, 80))
-        self.person_mask = self.person[:, :, 3].astype(np.float)/255.0
-        self.person_mask_inv = cv2.bitwise_not(self.person_mask).astype(np.float)/255.0
-        self.person_mask = self.person_mask.reshape((80, 80, 1))
-        self.person = self.person[:, :, :3].astype("float")/255.0
+        self.load_image_and_preprocess('user')
+        self.load_image_and_preprocess("person")
 
-    def overlay(self, x, y):
-        if x >= self.w:
+    def load_image_and_preprocess(self, name):
+        img = cv2.imread(name_to_img_name[name], -1)
+        img = cv2.resize(img, (80, 80))
+        mask = img[:, :, 3].astype(np.float)/255.0
+        mask = mask.reshape((80, 80, 1))
+        img = img[:, :, :3].astype("float")/255.0
+        self.name_img_mask[name] = (img, mask)
+
+    def overlay(self, x, y, name):
+        if x+40 >= self.w:
             x = self.w - 41
-        if x <= 0:
+        if x-40 <= 0:
             x = 40
+        print(x, y, name)
+        try:
+            img, mask = self.name_img_mask[name]
+        except KeyError:
+            print("This object is not supported in debug mode")
+        # print(img.shape, mask.shape)
         bg = self.frame[y-40:y+40, x-40:x+40].astype(np.float)/255.0
-        res = self.person * self.person_mask + bg * (1 - self.person_mask)
+        print(bg.shape, self.frame.shape, x)
+        res = img * mask + bg * (1 - mask)
         res = (res * 255).astype(np.uint8)
         self.frame[y-40:y+40, x-40:x+40] = res
 
@@ -40,9 +54,12 @@ class Display:
 
         return frame
 
-    def update(self, *args, **kwargs):
+    def update(self, label_object_mapping):
         self.frame = self.get_road()
-        self.overlay(int(args[0]), 550)
+        # if isinstance(args, list):
+        for label in label_object_mapping:
+            for position_x, position_y in label_object_mapping[label]:
+                self.overlay(position_x, position_y, label)
         self.start += 1
         self.start %= 100
         # cv2.circle(self.frame, (int(args[0]), 550), 3, (255,)*3, -3)
