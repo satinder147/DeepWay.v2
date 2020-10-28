@@ -30,7 +30,7 @@ Not a 15 minute video person, have a look at this 2 minute trailer [DeepWay v2 -
 1. Clone this repository
 2. Install anaconda.
 3. Install the required dependencies. Some libraries like pytorch, opencv would require a little extra attention.<br>
-> conda env create -f deepWay.yml
+> conda env create -f deepway.yml
 4. Change the COM number in the arduino.py file according to your system.
 5. Connect the Arduino nano.
 8. Compile and run arduino Nano code in the arduino nano.
@@ -69,7 +69,6 @@ My friend Sangam Kumar Padhi helped me with CAD model. You can look at it [here]
 
 ### 4. Electronics on the spectacles
 The electronics on the spectacles are very easy. It is just two servo motors connected with a ardunio nano. The arduino nano receives signal from the jetson(using pyserial library), and Arduino Nano controls the servo motors. <br>
-<img src="readMe/specs4.jpg" height=400 width=600 align="center" hspace=125px/>
 <img src="readMe/specs2.jpg" height=400 width=600 align="center"  hspace=125px/>
 <img src="readMe/specs3.jpg" height=400 width=600 align="center"  hspace=125px/>
 
