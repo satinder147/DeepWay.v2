@@ -2,7 +2,7 @@ import cv2
 import astar
 import numpy as np
 
-name_to_img_name = {'user': 'person.png', 'person': 'pedestrian.png'}
+name_to_img_name = {'user': 'images/person.png', 'person': 'images/pedestrian.png'}
 
 
 class Display:
