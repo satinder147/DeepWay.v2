@@ -71,6 +71,7 @@ My friend Sangam Kumar Padhi helped me with CAD model. You can look at it [here]
 The electronics on the spectacles are very easy. It is just two servo motors connected with a ardunio nano. The arduino nano receives signal from the jetson(using pyserial library), and Arduino Nano controls the servo motors. <br>
 <img src="readMe/specs2.jpg" height=400 width=600 align="center"  hspace=125px/>
 <img src="readMe/specs3.jpg" height=400 width=600 align="center"  hspace=125px/>
+<img src="readMe/luxonis.jpg" height=400 width=600 align="center"  hspace=125px/>
 
 
 #### FLOW
@@ -84,11 +85,11 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 8. Use A-Star algorithm to get a path from current location to 2 meters ahead while maintaining distance from objects.
 9. Inform the user about all the navigation instructions by using the SERVO motors.
 
-#### Things to be added or can beimproved
+#### Things to be added or can be improved
 1. Instead of using naive A-star use one which does not involve sharp turns.
 2. Find some efficient way than A-star.
 3. Try fitting a 3 degree polynomial to the trajectory to get smooth turns.
-4. Train a segmentation model for depthai, so that the complete neural network inference runs on the device.
+4. Train a segmentation model for depth-ai, so that the complete neural network inference runs on the device.
 5. Predicting where the pedestrians are going to be in future time will help plan better paths.
 6. Trajectory planning is same for all types of objects right now, but trajectories can be different based on the size and speed of the object.
 7. Region around a object also has to be considered.
@@ -101,18 +102,14 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 6. **Luxonis slack channel**
 
 # References
-1. [Pytorch](https://pytorch.org/)
+1. [Luxonis api reference](https://docs.luxonis.com/api/)
 2. [PyimageSearch](https://www.pyimagesearch.com/)
 3. [Pytorch Community, special mention @ptrblck](https://discuss.pytorch.org/)
-4. [AWS](https://aws.amazon.com/)
-5. [U-Net](https://arxiv.org/pdf/1505.04597.pdf)
-6. [U-Net implementation(usuyama)](https://github.com/usuyama/pytorch-unet)
-7. [U-Net implementation(Heet Sankesara)](https://towardsdatascience.com/u-net-b229b32b4a71)
-8. [Hao pytorch-ssd](https://github.com/qfgaohao/pytorch-ssd)
-9. [Jetson-hacks](https://www.jetsonhacks.com/)
-10. [Tensorflow](https://www.tensorflow.org/)
-11. [Keras](https://keras.io/)
-12. [Advanced lane detection-Eddie Forson](https://towardsdatascience.com/teaching-cars-to-see-advanced-lane-detection-using-computer-vision-87a01de0424f)
+4. [U-Net](https://arxiv.org/pdf/1505.04597.pdf)
+5. [U-Net implementation(usuyama)](https://github.com/usuyama/pytorch-unet) 
+6. [U-Net implementation(Heet Sankesara)](https://towardsdatascience.com/u-net-b229b32b4a71)
+7. [Social distancing app](https://github.com/luxonis/depthai-experiments/tree/master/social-distancing)
+8. [Advanced lane detection-Eddie Forson](https://towardsdatascience.com/teaching-cars-to-see-advanced-lane-detection-using-computer-vision-87a01de0424f)
 
 # Citations
 
@@ -120,6 +117,7 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 
 # Liked it
 Tell me if you liked it by giving a star. Also check out my other repositories, I always make cool stuff. I even have a youtube channel "reactor science" where I post all my work.
+
 # Read about v1 at:
 1. [Geospatial Magazine](https://www.geospatialworld.net/blogs/now-visually-impaired-can-navigate-easily-with-deepway/)
 2. [Hackster](https://blog.hackster.io/navigation-glasses-gently-poke-you-in-the-right-direction-21acc16c8b14)

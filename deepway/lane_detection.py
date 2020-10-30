@@ -16,12 +16,14 @@ def func(a, b):
 
 
 class Lanes:
+    disp_w, disp_h = 600, 600
+
     def __init__(self):
         self.model = Models(256, 256, 3)
         self.model = self.model.arch4()
         self.model.load_weights("trained_models/lane_lines.MODEL")
         self.deq = deque(maxlen=10)
-        self.obj2 = Display(600, 600)
+        self.obj2 = Display(Lanes.disp_w, Lanes.disp_h)
 
     @staticmethod
     def lane(all_lines):
@@ -83,7 +85,7 @@ class Lanes:
 
     @staticmethod
     def plot_obstructions_on_map(label_translated_points_mapping):
-        grid = np.zeros((600, 600), dtype=np.uint8)
+        grid = np.zeros((Lanes.disp_h, Lanes.disp_w), dtype=np.uint8)
         for label in label_translated_points_mapping:
             for point_x, point_y in label_translated_points_mapping[label]:
                 cv2.circle(grid, (point_x, point_y), 30, (255,), -1)  # Use some better way for picking 30
@@ -103,11 +105,11 @@ class Lanes:
             side = Lanes.side(object_x, object_y, lower[0], lower[1], upper[0], upper[1])
             dist = abs(object_x - point_x2)
             if side > 0:
-                normalized_dist = (dist/left_line_d)*200
-                normalized_dist = 300 - normalized_dist
+                normalized_dist = (dist/left_line_d) * Lanes.disp_w//3
+                normalized_dist = Lanes.disp_w//2 - normalized_dist
             else:
-                normalized_dist = (dist/right_line_d)*200
-                normalized_dist = 300 + normalized_dist
+                normalized_dist = (dist/right_line_d) * Lanes.disp_w//3
+                normalized_dist = Lanes.disp_w//2 + normalized_dist
             display_positions.append([int(normalized_dist), int(object_y * 2.343)])  # 600/256
         return display_positions
 
@@ -220,7 +222,7 @@ class Lanes:
                 label_translated_points_mapping[label] = []
             label_translated_points_mapping[label].append(translated_points)
         grid = Lanes.plot_obstructions_on_map(label_translated_points_mapping)
-        user_x, user_y = p, 550
+        user_x, user_y = p, int((11 / 12) * Lanes.disp_w)
         label_translated_points_mapping['user'] = [[user_x, user_y]]
 
         # if position is right region or left offroad or right offroad, just draw a path form current position to left
@@ -229,11 +231,11 @@ class Lanes:
         is_path_normal = False
         if position == "off-road-right" or position == "right" or position == "off-road-left":
             is_path_normal = True
-            cnt = [[[user_x, user_y]], [[200, user_y]]]
-            direction_vector = ([user_x, user_y], [200, user_y])
+            cnt = [[[user_x, user_y]], [[Lanes.disp_w//3, user_y]]]
+            direction_vector = ([user_x, user_y], [Lanes.disp_w//3, user_y])
         else:
             temp_grid = np.zeros_like(grid, dtype=np.uint8)
-            path = astar.a_star((200, 450), (user_x, user_y), grid)  # user_y -200 this 200 is the distance ahead.
+            path = astar.a_star((Lanes.disp_w//3, int((3/4)*Lanes.disp_w)), (user_x, user_y), grid)
             path = np.array(path)
             direction_vector = (path[0], path[30])  # direction vector
             if path is not None:
