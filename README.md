@@ -84,6 +84,14 @@ The electronics on the spectacles are very easy. It is just two servo motors con
 8. Use A-Star algorithm to get a path from current location to 2 meters ahead while maintaining distance from objects.
 9. Inform the user about all the navigation instructions by using the SERVO motors.
 
+#### Things to be added or can beimproved
+1. Instead of using naive A-star use one which does not involve sharp turns.
+2. Find some efficient way than A-star.
+3. Try fitting a 3 degree polynomial to the trajectory to get smooth turns.
+4. Train a segmentation model for depthai, so that the complete neural network inference runs on the device.
+5. Predicting where the pedestrians are going to be in future time will help plan better paths.
+6. Trajectory planning is same for all types of objects right now, but trajectories can be different based on the size and speed of the object.
+7. Region around a object also has to be considered.
 # People to Thank
 1. **Army Institute of Technology (My college).**
 2. **Prof. Avinash Patil,Sangam Kumar Padhi, Sahil and Priyanshu for 3D modelling and printing.**
