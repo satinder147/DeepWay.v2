@@ -1,5 +1,6 @@
 import cv2
 import math
+import astar
 import numpy as np
 from scipy import stats
 from display import Display
@@ -71,14 +72,22 @@ class Lanes:
     def area(left_line, center_line, right_line):
         label = "none"
         if left_line >= 0:
-            label = "off-road->left"
+            label = "off-road-left"
         elif center_line >= 0:
-            label = "left region"
+            label = "left"
         elif right_line <= 0:
-            label = "off-road->right"
+            label = "off-road-right"
         elif center_line <= 0:
-            label = "right region"
+            label = "right"
         return label
+
+    @staticmethod
+    def plot_obstructions_on_map(label_translated_points_mapping):
+        grid = np.zeros((600, 600), dtype=np.uint8)
+        for label in label_translated_points_mapping:
+            for point_x, point_y in label_translated_points_mapping[label]:
+                cv2.circle(grid, (point_x, point_y), 30, (255,), -1)  # Use some better way for picking 30
+        return grid
 
     @staticmethod
     def get_projection_x(points, lower, upper, i1, s1, i2, s2):
@@ -95,7 +104,7 @@ class Lanes:
             dist = abs(object_x - point_x2)
             if side > 0:
                 normalized_dist = (dist/left_line_d)*200
-                normalized_dist = 300 + normalized_dist
+                normalized_dist = 300 - normalized_dist
             else:
                 normalized_dist = (dist/right_line_d)*200
                 normalized_dist = 300 + normalized_dist
@@ -210,7 +219,39 @@ class Lanes:
             if label not in label_translated_points_mapping:
                 label_translated_points_mapping[label] = []
             label_translated_points_mapping[label].append(translated_points)
-        label_translated_points_mapping['user'] = [[p, 550]]
+        grid = Lanes.plot_obstructions_on_map(label_translated_points_mapping)
+        user_x, user_y = p, 550
+        label_translated_points_mapping['user'] = [[user_x, user_y]]
+
+        # if position is right region or left offroad or right offroad, just draw a path form current position to left
+        # lane center and move the person at that place.
+        # else use the other thing
+        is_path_normal = False
+        if position == "off-road-right" or position == "right" or position == "off-road-left":
+            is_path_normal = True
+            cnt = [[[user_x, user_y]], [[200, user_y]]]
+            direction_vector = ([user_x, user_y], [200, user_y])
+        else:
+            temp_grid = np.zeros_like(grid, dtype=np.uint8)
+            path = astar.a_star((200, 450), (user_x, user_y), grid)  # user_y -200 this 200 is the distance ahead.
+            path = np.array(path)
+            direction_vector = (path[0], path[30])  # direction vector
+            if path is not None:
+                temp_grid[path[:, 1], path[:, 0]] = 255
+                cnt, _ = cv2.findContours(temp_grid, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+                cnt = cnt[0]
+            # for i in range(1, len(cnt)):
+            #     point_x1, point_y1 = cnt[i][0][1], cnt[i][0][0]
+            #     point_x2, point_y2 = cnt[i-1][0][1], cnt[i-1][0][0]
+            #     cv2.line(grid, (point_x1, point_y1), (point_x2, point_y2), (255,), 2)
+
+        where_to = ""
+        if direction_vector[0][0] <= direction_vector[1][0]:
+            where_to = "right"
+        else:
+            where_to = "left"
+        if direction_vector[0][1] != direction_vector[1][1]:
+            where_to += " + forward"
         # if arduino_enabled:
         #     if position == "off-road->left" and n % 60 == 0:
         #         ard.right()
@@ -220,7 +261,12 @@ class Lanes:
         #         ard.left()
 
         if debug:
-            self.obj2.update(label_translated_points_mapping)
+            if not is_path_normal:
+                cv2.imshow("grid", grid)
+                cv2.imshow("temp_grid", temp_grid)
+                cv2.moveWindow("grid", 700, 500)
+                cv2.moveWindow("temp_grid", 1400, 500)
+            self.obj2.update(label_translated_points_mapping, cnt, direction_vector, where_to)
             # self.obj2.update(translated_points, 'object_pedestrian')
             self.obj2.plot()
             cv2.putText(frame_copy, position, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -234,13 +280,14 @@ class Lanes:
             cv2.moveWindow("binary road mask", 0, 0)
             cv2.moveWindow("segmentation", 450, 0)
             cv2.moveWindow("frame", 830, 0)
+
         return position
 
 
 if __name__ == '__main__':
     obj = Lanes()
 
-    cap = cv2.VideoCapture("3.mp4")
+    cap = cv2.VideoCapture("1.mp4")
     while 1:
         ret, frame = cap.read()
         if not ret:

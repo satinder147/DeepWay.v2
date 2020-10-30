@@ -1,5 +1,4 @@
 import cv2
-import astar
 import numpy as np
 
 name_to_img_name = {'user': 'images/person.png', 'person': 'images/pedestrian.png'}
@@ -56,40 +55,27 @@ class Display:
         # navigation_map = np.zeros((self.h//2, self.w))
         return frame
 
-    def update(self, label_object_mapping):
+    def update(self, label_object_mapping, cnt, direction_vector, where_to):
         self.frame = self.get_road()
-        self.navigation_map = np.zeros((self.h//2, self.w), dtype=np.uint8)
-        self.co = self.navigation_map.copy()
-        # if isinstance(args, list):
         for label in label_object_mapping:
             for position_x, position_y in label_object_mapping[label]:
                 self.overlay(position_x, position_y, label)
+                cv2.circle(self.frame, (position_x, position_y), 3, (0, 0, 255), -3)
+        cv2.putText(self.frame, where_to, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        # cv2.circle(self.frame, (200, 400), 3, (0, 0, 255), -3)
         self.start += 1
         self.start %= 100
         # cv2.circle(self.frame, (int(args[0]), 550), 3, (255,)*3, -3)
-        x, y = label_object_mapping['user'][0]
-        # print(self.navigation_map.shape)
-
-        cv2.circle(self.navigation_map, (324, 125), 10, (255,), -1)
-        path = astar.a_star((0, 200), (y-300, x), self.navigation_map)
-        path = np.array(path)
-        # print(path[[0,1]])
-        if path is not False:
-            self.co[path[:, 0], path[:, 1]] = 255
-            cnt, _ = cv2.findContours(self.co, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-            cnt = cnt[0]
-        # print(cnt[0][0][1])
-
         for i in range(1, len(cnt)):
-            x1, y1 = cnt[i][0][0], cnt[i][0][1] + 300
-            x2, y2 = cnt[i-1][0][0], cnt[i-1][0][1] + 300
+            x1, y1 = cnt[i][0][0], cnt[i][0][1]
+            x2, y2 = cnt[i-1][0][0], cnt[i-1][0][1]
             cv2.line(self.frame, (x1, y1), (x2, y2), (0, 0, 0), 2)
+        src, dst = direction_vector
+        cv2.line(self.frame, (src[0], src[1]), (dst[0], dst[1]), (0, 255, 0), 3)
 
     def plot(self):
         cv2.imshow("plot", self.frame)
         cv2.moveWindow("plot", 0, 500)
-        cv2.imshow("map", self.navigation_map)
-        cv2.moveWindow("map", 800, 500)
 
 
 if __name__ == "__main__":
