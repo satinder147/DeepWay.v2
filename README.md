@@ -31,10 +31,11 @@ Not a 15 minute video person, have a look at this 2 minute trailer [DeepWay v2 -
 2. Install anaconda.
 3. Install the required dependencies. Some libraries like pytorch, opencv would require a little extra attention.<br>
 > conda env create -f deepway.yml
-4. Change the COM number in the arduino.py file according to your system.
-5. Connect the Arduino nano.
-8. Compile and run arduino Nano code in the arduino nano.
-9. Run blindrunner.py
+4. Download the segmentation model from [here](https://drive.google.com/file/d/108qQlXXWIz-e9go1HsL4GkXm1YP20r0S/view?usp=sharing) and create a directory inside deepway folder named "trained_models" and put it there.
+5. Change the COM number in the arduino.py file according to your system.
+6. Connect the Arduino nano.
+7. Compile and run arduino Nano code in the arduino nano.
+8. Run blindrunner.py
 
 
 ### 1. Collecting dataSet and Generating image masks.
