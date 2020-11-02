@@ -35,7 +35,7 @@ Not a 15 minute video person, have a look at this 2 minute trailer [DeepWay v2 -
 5. Change the COM number in the arduino.py file according to your system.
 6. Connect the Arduino nano.
 7. Compile and run arduino Nano code in the arduino nano.
-8. Run blindrunner.py
+8. Run runner.py
 
 
 ### 1. Collecting dataSet and Generating image masks.
