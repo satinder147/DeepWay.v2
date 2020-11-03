@@ -7,7 +7,7 @@
 ### Different versions of this project
 * **V1** [github](https://github.com/satinder147/DeepWay), [video](https://www.youtube.com/watch?v=qkmU8mN0LwE)
 * **V2** Github: Master branch of this repo, [15 minute video](https://youtu.be/3aPsFYoD9pA), [DeepWay v2 -trailer](https://www.youtube.com/watch?v=ks8Rsd65RnM)
-* **V3** Github: Depthai branch of this repo. [Explanation video](https://www.youtube.com/watch?v=ucMvhb73W8A&feature=youtu.be)
+* **V2.1** Github: Depthai branch of this repo. [Explanation video](https://www.youtube.com/watch?v=ucMvhb73W8A&feature=youtu.be)
 ### A question you may have in mind
 ##### If I already had a repository, why make another ?
 * Since V1 was based on keras, and I don't like tensorflow much, so for more control I have shifted to pytorch.  
