@@ -1,11 +1,13 @@
 ## DEEPWAY V2
 ### Autonomous navigation for blind people.
   
-This project is version 2.1 of the DeepWay. See  [v1](https://github.com/satinder147/DeepWay). You can have a look at this [video](https://www.youtube.com/watch?v=qkmU8mN0LwE)
+
 <img src="readMe/cover.png" height=500  hspace=20px vspace=200px/>
 
-**Before proceeding look at demo of version2 at [DeepWay v.2](https://youtu.be/3aPsFYoD9pA)  
-Not a 15 minute video person, have a look at this 2 minute trailer [DeepWay v2 -trailer](https://www.youtube.com/watch?v=ks8Rsd65RnM)**
+### Different versions of this project
+* **V1** [github](https://github.com/satinder147/DeepWay), [video](https://www.youtube.com/watch?v=qkmU8mN0LwE)
+* **V2** Github: Master branch of this repo, [15 minute video](https://youtu.be/3aPsFYoD9pA), [DeepWay v2 -trailer](https://www.youtube.com/watch?v=ks8Rsd65RnM)
+* **V3** Github: Depthai branch of this repo. [Explanation video](https://www.youtube.com/watch?v=ucMvhb73W8A&feature=youtu.be)
 ### A question you may have in mind
 ##### If I already had a repository, why make another ?
 * Since V1 was based on keras, and I don't like tensorflow much, so for more control I have shifted to pytorch.  
